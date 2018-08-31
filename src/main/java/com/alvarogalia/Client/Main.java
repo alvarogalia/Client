@@ -20,9 +20,6 @@ import java.awt.GraphicsEnvironment;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
-import java.util.HashMap;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
@@ -37,6 +34,9 @@ public class Main extends javax.swing.JFrame {
      * Creates new form Main2
      * @param hist
      */
+    FrameRegistrarVisita frameAgregarVisita;
+    FirebaseDatabase database;
+    DatabaseReference refNowWatching;
     
     ValueEventListener listenerNowWatching = new ValueEventListener() {
         @Override
@@ -100,10 +100,6 @@ public class Main extends javax.swing.JFrame {
         model.removeRow(0);
         //jTable1.setModel(model);
     }
-
-    FirebaseDatabase database;
-    DatabaseReference refNowWatching;
-    
     public Main() throws FileNotFoundException, IOException {
         initComponents();
         
@@ -111,7 +107,7 @@ public class Main extends javax.swing.JFrame {
         
         GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
         this.setMaximizedBounds(env.getMaximumWindowBounds());
-        this.setExtendedState(this.getExtendedState() | this.MAXIMIZED_BOTH);
+        this.setExtendedState(this.getExtendedState() | Main.MAXIMIZED_BOTH);
         
         FileInputStream serviceAccount = new FileInputStream("controlacceso-fc68c-firebase-adminsdk-22zra-efe9ebaead.json");
         FirebaseOptions options = new FirebaseOptions.Builder()
@@ -121,6 +117,8 @@ public class Main extends javax.swing.JFrame {
 
         FirebaseApp.initializeApp(options);
         database = FirebaseDatabase.getInstance();
+        
+        frameAgregarVisita = new FrameRegistrarVisita(database);
         
         refNowWatching = database.getReference("nowWatching/Ubicacion/Brasil/BR-CAM-1/ppu");
         refNowWatching.addValueEventListener(listenerNowWatching);
@@ -449,6 +447,11 @@ public class Main extends javax.swing.JFrame {
         jTabbedPane1.addTab("BR-CAM-1", jPanel1);
 
         jButton1.setText("Registrar visita");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
 
         btnEnVivo.setText("En vivo");
         btnEnVivo.addActionListener(new java.awt.event.ActionListener() {
@@ -503,6 +506,14 @@ public class Main extends javax.swing.JFrame {
     private void txtNombreRSActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtNombreRSActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_txtNombreRSActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        frameAgregarVisita.setLocationRelativeTo(null);
+        frameAgregarVisita.limpiaFormulario();
+        frameAgregarVisita.setTimestamp();
+        frameAgregarVisita.setVisible(true);
+        frameAgregarVisita.setDefaultCloseOperation(HIDE_ON_CLOSE);
+    }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
      * @param args the command line arguments
