@@ -24,9 +24,9 @@ public class FrameRegistrarVisita extends javax.swing.JFrame {
     
     FirebaseDatabase database;
     String ubicacion = "";
-    public FrameRegistrarVisita(FirebaseDatabase pDatabase) {
+    FrameRegistrarVisita(FirebaseDatabase pDatabase) {
         initComponents();
-        jTextField1.requestFocus();
+        txtPatente.requestFocus();
         database = pDatabase;
         ubicacion = "Brasil";
     }
@@ -45,18 +45,18 @@ public class FrameRegistrarVisita extends javax.swing.JFrame {
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
-        jTextField2 = new javax.swing.JTextField();
-        jTextField3 = new javax.swing.JTextField();
+        txtPatente = new javax.swing.JTextField();
+        txtRut = new javax.swing.JTextField();
+        txtNombreVisita = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
-        jTextField4 = new javax.swing.JTextField();
+        txtDptoCasa = new javax.swing.JTextField();
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
         jLabel6 = new javax.swing.JLabel();
         lblTimestamp = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
-        jTextField5 = new javax.swing.JTextField();
+        txtDV = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -70,15 +70,15 @@ public class FrameRegistrarVisita extends javax.swing.JFrame {
 
         jLabel4.setText("Nombre Visita");
 
-        jTextField1.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
+        txtPatente.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
 
-        jTextField2.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
+        txtRut.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
 
-        jTextField3.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
+        txtNombreVisita.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
 
         jLabel5.setText("Dpto/Casa");
 
-        jTextField4.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
+        txtDptoCasa.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
 
         jButton1.setText("Registrar");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
@@ -124,7 +124,7 @@ public class FrameRegistrarVisita extends javax.swing.JFrame {
                                 .addGap(288, 288, 288)
                                 .addComponent(jLabel9)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jTextField5))
+                                .addComponent(txtDV))
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                                     .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -138,12 +138,12 @@ public class FrameRegistrarVisita extends javax.swing.JFrame {
                                         .addComponent(lblTimestamp, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                         .addComponent(jLabel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                    .addComponent(jTextField1, javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(txtPatente, javax.swing.GroupLayout.Alignment.TRAILING)
                                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                                        .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 173, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(txtRut, javax.swing.GroupLayout.PREFERRED_SIZE, 173, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addGap(0, 0, Short.MAX_VALUE))
-                                    .addComponent(jTextField3, javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(jTextField4, javax.swing.GroupLayout.Alignment.TRAILING))))
+                                    .addComponent(txtNombreVisita, javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(txtDptoCasa, javax.swing.GroupLayout.Alignment.TRAILING))))
                         .addContainerGap())))
         );
         jPanel1Layout.setVerticalGroup(
@@ -154,27 +154,27 @@ public class FrameRegistrarVisita extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txtPatente, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
-                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtRut, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel9)
-                    .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txtDV, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
-                    .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txtNombreVisita, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel5)
-                    .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txtDptoCasa, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel6)
                     .addComponent(lblTimestamp)
                     .addComponent(jLabel8))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 33, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton1)
                     .addComponent(jButton2)))
@@ -203,12 +203,20 @@ public class FrameRegistrarVisita extends javax.swing.JFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         Visita visita = new Visita();
         visita.setTimestampEntrada(Long.parseLong(lblTimestamp.getText().replace("-", "").replace(" ", "").replace(":", "")));
-        visita.setPpu(jTextField1.getText());
-        visita.setRut(jTextField2.getText());
-        visita.setDv(jTextField3.getText());
-        visita.setNombre(jTextField5.getText());
+        visita.setPpu(txtPatente.getText());
+        visita.setRut(txtRut.getText());
+        visita.setDv(txtDV.getText());
+        visita.setNombre(txtNombreVisita.getText());
+        visita.setDptoCondominio(txtDptoCasa.getText());
         
-        DatabaseReference refVisita = database.getReference("visitas/Ubicacion/"+ubicacion);
+        String tipoVisita = "";
+        if(visita.getPpu().trim().equals("")){
+            tipoVisita = "Persona";
+        }else{
+            tipoVisita = "Vehiculo";
+        }
+        
+        DatabaseReference refVisita = database.getReference("visitas/Ubicacion/"+ubicacion+"/"+tipoVisita+"");
         Map<String, Object> mapNw = new HashMap<>();
         mapNw.put(String.valueOf(visita.getTimestampEntrada()), visita);
         refVisita.updateChildrenAsync(mapNw);
@@ -222,11 +230,11 @@ public class FrameRegistrarVisita extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton2ActionPerformed
 
     public void limpiaFormulario(){
-        jTextField1.setText("");
-        jTextField2.setText("");
-        jTextField3.setText("");
-        jTextField4.setText("");
-        jTextField5.setText("");
+        txtPatente.setText("");
+        txtRut.setText("");
+        txtNombreVisita.setText("");
+        txtDptoCasa.setText("");
+        txtDV.setText("");
         lblTimestamp.setText("");
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -241,12 +249,12 @@ public class FrameRegistrarVisita extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField2;
-    private javax.swing.JTextField jTextField3;
-    private javax.swing.JTextField jTextField4;
-    private javax.swing.JTextField jTextField5;
     private javax.swing.JLabel lblTimestamp;
+    private javax.swing.JTextField txtDV;
+    private javax.swing.JTextField txtDptoCasa;
+    private javax.swing.JTextField txtNombreVisita;
+    private javax.swing.JTextField txtPatente;
+    private javax.swing.JTextField txtRut;
     // End of variables declaration//GEN-END:variables
 
     void setTimestamp() {

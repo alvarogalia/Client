@@ -10,6 +10,7 @@ package com.alvarogalia.Client.Obj;
  * @author GENESYS
  */
 public class Visita {
+
     private String ppu;
     private String rut;
     private String dv;
@@ -17,7 +18,8 @@ public class Visita {
     private long timestampEntrada;
     private long timestampSalida;
     private int duracion;
-    
+    private String dptoCondominio;
+
     /**
      * @return the ppu
      */
@@ -114,5 +116,19 @@ public class Visita {
      */
     public void setDuracion(int duracion) {
         this.duracion = duracion;
+    }
+
+    /**
+     * @return the dptoCondominio
+     */
+    public String getDptoCondominio() {
+        return dptoCondominio;
+    }
+
+    /**
+     * @param dptoCondominio the dptoCondominio to set
+     */
+    public void setDptoCondominio(String dptoCondominio) {
+        this.dptoCondominio = dptoCondominio;
     }
 }

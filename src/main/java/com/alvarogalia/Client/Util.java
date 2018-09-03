@@ -22,4 +22,8 @@ public class Util {
                 .insert(16, ":").toString();
         return strLong;
     }
+    public static long StringToLong(String pString){
+        String limpio = pString.replace("-", "").replace(" ", "").replace(":", "");
+        return Long.parseLong(limpio);
+    }
 }

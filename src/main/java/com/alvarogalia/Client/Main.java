@@ -35,6 +35,11 @@ public class Main extends javax.swing.JFrame {
      * @param hist
      */
     FrameRegistrarVisita frameAgregarVisita;
+    FrameRegistrarSalidaPPU frameRegistrarSalidaPPU;
+    FrameListaNegra frameListaNegra;
+    FrameListaBlanca frameListaBlanca;
+    
+    
     FirebaseDatabase database;
     DatabaseReference refNowWatching;
     
@@ -42,9 +47,9 @@ public class Main extends javax.swing.JFrame {
         @Override
         public void onDataChange(DataSnapshot dataSnapshot) {
             String ppu = dataSnapshot.getValue(String.class);
-            jLabel1.setText(ppu);
+            lblPatente.setText(ppu);
 
-            DefaultTableModel model = (DefaultTableModel)tableVisitas.getModel();
+            DefaultTableModel model = (DefaultTableModel)tblVisitas.getModel();
             while(model.getRowCount() > 0){
                 model.removeRow(0);
             }
@@ -53,7 +58,7 @@ public class Main extends javax.swing.JFrame {
             qVisitas.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot ds) {
-                    DefaultTableModel model = (DefaultTableModel)tableVisitas.getModel();
+                    DefaultTableModel model = (DefaultTableModel)tblVisitas.getModel();
                     while(model.getRowCount() > 0){
                         model.removeRow(0);
                     }
@@ -77,13 +82,14 @@ public class Main extends javax.swing.JFrame {
         public void onCancelled(DatabaseError de) {
         }
     };
+    
     public void addRowToHistory(Historial hist) {
-        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+        DefaultTableModel model = (DefaultTableModel) tableHistorial.getModel();
         model.insertRow(0, new Object[]{String.valueOf(hist.getTimestamp()), hist.getPpu(), false, ""});
     }
 
     public void addMasiveRowToHistory(DataSnapshot ds) {
-        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+        DefaultTableModel model = (DefaultTableModel) tableHistorial.getModel();
         for(DataSnapshot a : ds.getChildren()){
             String value = "";
             long hora = 0;
@@ -103,7 +109,7 @@ public class Main extends javax.swing.JFrame {
     public Main() throws FileNotFoundException, IOException {
         initComponents();
         
-        jTable1.getColumnModel().removeColumn(jTable1.getColumnModel().getColumn(0));
+        tableHistorial.getColumnModel().removeColumn(tableHistorial.getColumnModel().getColumn(0));
         
         GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
         this.setMaximizedBounds(env.getMaximumWindowBounds());
@@ -119,6 +125,9 @@ public class Main extends javax.swing.JFrame {
         database = FirebaseDatabase.getInstance();
         
         frameAgregarVisita = new FrameRegistrarVisita(database);
+        frameRegistrarSalidaPPU = new FrameRegistrarSalidaPPU(database);
+        frameListaNegra = new FrameListaNegra(database);
+        frameListaBlanca = new FrameListaBlanca(database);
         
         refNowWatching = database.getReference("nowWatching/Ubicacion/Brasil/BR-CAM-1/ppu");
         refNowWatching.addValueEventListener(listenerNowWatching);
@@ -138,7 +147,7 @@ public class Main extends javax.swing.JFrame {
 
             @Override
             public void onChildRemoved(DataSnapshot ds) {
-                DefaultTableModel model = (DefaultTableModel)jTable1.getModel();
+                DefaultTableModel model = (DefaultTableModel)tableHistorial.getModel();
                 for(int i = 0; i < model.getRowCount(); i++){
                     if(ds.getKey().equals(model.getValueAt(i, 0))){
                         model.removeRow(i);
@@ -156,24 +165,24 @@ public class Main extends javax.swing.JFrame {
             }
         });
         
-        jTable1.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+        tableHistorial.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
-                if (!e.getValueIsAdjusting() && jTable1.getSelectedRowCount() > 0) {
+                if (!e.getValueIsAdjusting() && tableHistorial.getSelectedRowCount() > 0) {
                     refNowWatching.removeEventListener(listenerNowWatching);
 
-                    DefaultTableModel model = (DefaultTableModel)tableVisitas.getModel();
+                    DefaultTableModel model = (DefaultTableModel)tblVisitas.getModel();
                     while(model.getRowCount() > 0){
                         model.removeRow(0);
                     }
 
-                    String ppu = (String) jTable1.getModel().getValueAt(jTable1.getSelectedRow(), 1);
-                    jLabel1.setText(ppu);
+                    String ppu = (String) tableHistorial.getModel().getValueAt(tableHistorial.getSelectedRow(), 1);
+                    lblPatente.setText(ppu);
                     Query qVisitas = database.getReference("historial/Ubicacion/Brasil/").orderByChild("ppu").equalTo(ppu);
                     qVisitas.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot ds){
-                            DefaultTableModel model = (DefaultTableModel)tableVisitas.getModel();
+                            DefaultTableModel model = (DefaultTableModel)tblVisitas.getModel();
                             while(model.getRowCount() > 0){
                                 model.removeRow(0);
                             }
@@ -207,11 +216,11 @@ public class Main extends javax.swing.JFrame {
     private void initComponents() {
 
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        tableHistorial = new javax.swing.JTable();
         jTabbedPane1 = new javax.swing.JTabbedPane();
         jPanel1 = new javax.swing.JPanel();
         jPanel3 = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
+        lblPatente = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
         jPanel4 = new javax.swing.JPanel();
@@ -221,12 +230,15 @@ public class Main extends javax.swing.JFrame {
         txtNombreRS = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
-        tableChoferRegistrado = new javax.swing.JTable();
+        tblChoferRegistrado = new javax.swing.JTable();
         jScrollPane3 = new javax.swing.JScrollPane();
-        tableVisitas = new javax.swing.JTable();
+        tblVisitas = new javax.swing.JTable();
         jLabel6 = new javax.swing.JLabel();
-        jButton1 = new javax.swing.JButton();
+        btnVisitaRegistro = new javax.swing.JButton();
         btnEnVivo = new javax.swing.JButton();
+        btnVisitaSalida = new javax.swing.JButton();
+        btnListaNegra = new javax.swing.JButton();
+        btnListaBlanca = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Control Acceso");
@@ -237,9 +249,9 @@ public class Main extends javax.swing.JFrame {
         jScrollPane1.setMaximumSize(new java.awt.Dimension(453, 403));
         jScrollPane1.setMinimumSize(new java.awt.Dimension(453, 403));
 
-        jTable1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        jTable1.setFont(new java.awt.Font("Courier New", 0, 12)); // NOI18N
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        tableHistorial.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        tableHistorial.setFont(new java.awt.Font("Courier New", 0, 12)); // NOI18N
+        tableHistorial.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
@@ -262,21 +274,21 @@ public class Main extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
-        jTable1.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
-        jTable1.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        jTable1.setUpdateSelectionOnSort(false);
-        jTable1.addContainerListener(new java.awt.event.ContainerAdapter() {
+        tableHistorial.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        tableHistorial.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        tableHistorial.setUpdateSelectionOnSort(false);
+        tableHistorial.addContainerListener(new java.awt.event.ContainerAdapter() {
             public void componentAdded(java.awt.event.ContainerEvent evt) {
-                jTable1ComponentAdded(evt);
+                tableHistorialComponentAdded(evt);
             }
         });
-        jScrollPane1.setViewportView(jTable1);
+        jScrollPane1.setViewportView(tableHistorial);
 
-        jLabel1.setFont(new java.awt.Font("Courier New", 1, 18)); // NOI18N
-        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel1.setText("Obteniendo lectura");
-        jLabel1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        jLabel1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        lblPatente.setFont(new java.awt.Font("Courier New", 1, 18)); // NOI18N
+        lblPatente.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblPatente.setText("Obteniendo lectura");
+        lblPatente.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        lblPatente.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
 
         jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel2.setText("Última lectura");
@@ -291,7 +303,7 @@ public class Main extends javax.swing.JFrame {
                     .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addGap(12, 12, 12)
-                        .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addComponent(lblPatente, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel3Layout.setVerticalGroup(
@@ -299,7 +311,7 @@ public class Main extends javax.swing.JFrame {
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addComponent(jLabel2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(lblPatente, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         jPanel2.setBackground(new java.awt.Color(255, 255, 204));
@@ -333,7 +345,7 @@ public class Main extends javax.swing.JFrame {
 
         jLabel5.setText("Chofer registrado");
 
-        tableChoferRegistrado.setModel(new javax.swing.table.DefaultTableModel(
+        tblChoferRegistrado.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
@@ -356,9 +368,9 @@ public class Main extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
-        jScrollPane2.setViewportView(tableChoferRegistrado);
+        jScrollPane2.setViewportView(tblChoferRegistrado);
 
-        tableVisitas.setModel(new javax.swing.table.DefaultTableModel(
+        tblVisitas.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
@@ -374,7 +386,7 @@ public class Main extends javax.swing.JFrame {
                 return types [columnIndex];
             }
         });
-        jScrollPane3.setViewportView(tableVisitas);
+        jScrollPane3.setViewportView(tblVisitas);
 
         jLabel6.setText("Visitas Anteriores");
 
@@ -446,17 +458,38 @@ public class Main extends javax.swing.JFrame {
 
         jTabbedPane1.addTab("BR-CAM-1", jPanel1);
 
-        jButton1.setText("Registrar visita");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        btnVisitaRegistro.setText("Registrar visita");
+        btnVisitaRegistro.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                btnVisitaRegistroActionPerformed(evt);
             }
         });
 
-        btnEnVivo.setText("En vivo");
+        btnEnVivo.setText("En Vivo");
         btnEnVivo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnEnVivoActionPerformed(evt);
+            }
+        });
+
+        btnVisitaSalida.setText("Registrar salida vehiculo");
+        btnVisitaSalida.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnVisitaSalidaActionPerformed(evt);
+            }
+        });
+
+        btnListaNegra.setText("Lista Negra");
+        btnListaNegra.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnListaNegraActionPerformed(evt);
+            }
+        });
+
+        btnListaBlanca.setText("Lista Blanca");
+        btnListaBlanca.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnListaBlancaActionPerformed(evt);
             }
         });
 
@@ -468,7 +501,13 @@ public class Main extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jButton1)
+                        .addComponent(btnVisitaRegistro)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnVisitaSalida)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnListaNegra)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnListaBlanca)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(btnEnVivo))
                     .addComponent(jTabbedPane1))
@@ -482,21 +521,24 @@ public class Main extends javax.swing.JFrame {
                 .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton1)
-                    .addComponent(btnEnVivo))
+                    .addComponent(btnVisitaRegistro)
+                    .addComponent(btnEnVivo)
+                    .addComponent(btnVisitaSalida)
+                    .addComponent(btnListaNegra)
+                    .addComponent(btnListaBlanca))
                 .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jTable1ComponentAdded(java.awt.event.ContainerEvent evt) {//GEN-FIRST:event_jTable1ComponentAdded
+    private void tableHistorialComponentAdded(java.awt.event.ContainerEvent evt) {//GEN-FIRST:event_tableHistorialComponentAdded
         
-    }//GEN-LAST:event_jTable1ComponentAdded
+    }//GEN-LAST:event_tableHistorialComponentAdded
 
     private void btnEnVivoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEnVivoActionPerformed
         refNowWatching.addValueEventListener(listenerNowWatching);
-        jTable1.clearSelection();
+        tableHistorial.clearSelection();
     }//GEN-LAST:event_btnEnVivoActionPerformed
 
     private void txtRutPropietarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtRutPropietarioActionPerformed
@@ -507,13 +549,32 @@ public class Main extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_txtNombreRSActionPerformed
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void btnVisitaRegistroActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVisitaRegistroActionPerformed
         frameAgregarVisita.setLocationRelativeTo(null);
         frameAgregarVisita.limpiaFormulario();
         frameAgregarVisita.setTimestamp();
         frameAgregarVisita.setVisible(true);
         frameAgregarVisita.setDefaultCloseOperation(HIDE_ON_CLOSE);
-    }//GEN-LAST:event_jButton1ActionPerformed
+    }//GEN-LAST:event_btnVisitaRegistroActionPerformed
+
+    private void btnVisitaSalidaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVisitaSalidaActionPerformed
+        frameRegistrarSalidaPPU.setLocationRelativeTo(null);
+        //frameRegistrarSalidaPPU.limpiaTabla();
+        frameRegistrarSalidaPPU.setVisible(true);
+        frameRegistrarSalidaPPU.setDefaultCloseOperation(HIDE_ON_CLOSE);
+    }//GEN-LAST:event_btnVisitaSalidaActionPerformed
+
+    private void btnListaNegraActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnListaNegraActionPerformed
+        frameListaNegra.setLocationRelativeTo(null);
+        frameListaNegra.setVisible(true);
+        frameListaNegra.setDefaultCloseOperation(HIDE_ON_CLOSE);
+    }//GEN-LAST:event_btnListaNegraActionPerformed
+
+    private void btnListaBlancaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnListaBlancaActionPerformed
+        frameListaBlanca.setLocationRelativeTo(null);
+        frameListaBlanca.setVisible(true);
+        frameListaBlanca.setDefaultCloseOperation(HIDE_ON_CLOSE);
+    }//GEN-LAST:event_btnListaBlancaActionPerformed
 
     /**
      * @param args the command line arguments
@@ -557,8 +618,10 @@ public class Main extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnEnVivo;
-    private javax.swing.JButton jButton1;
-    private javax.swing.JLabel jLabel1;
+    private javax.swing.JButton btnListaBlanca;
+    private javax.swing.JButton btnListaNegra;
+    private javax.swing.JButton btnVisitaRegistro;
+    private javax.swing.JButton btnVisitaSalida;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -572,15 +635,16 @@ public class Main extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTabbedPane jTabbedPane1;
-    private javax.swing.JTable jTable1;
-    private javax.swing.JTable tableChoferRegistrado;
-    private javax.swing.JTable tableVisitas;
+    private javax.swing.JLabel lblPatente;
+    private javax.swing.JTable tableHistorial;
+    private javax.swing.JTable tblChoferRegistrado;
+    private javax.swing.JTable tblVisitas;
     private javax.swing.JTextField txtNombreRS;
     private javax.swing.JTextField txtRutPropietario;
     // End of variables declaration//GEN-END:variables
 
     private void limpiaModel() {
-        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+        DefaultTableModel model = (DefaultTableModel) tableHistorial.getModel();
         if (model.getRowCount() > 100000) {
             for (int i = 100; i <= model.getRowCount(); i++) {
                 model.removeRow(i);
