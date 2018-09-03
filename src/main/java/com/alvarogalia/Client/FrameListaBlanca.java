@@ -12,6 +12,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
+import java.util.HashMap;
 import java.util.Map;
 import javax.swing.table.DefaultTableModel;
 
@@ -25,7 +26,7 @@ public class FrameListaBlanca extends javax.swing.JFrame {
      * Creates new form FrameListaBlanca
      */
     FirebaseDatabase database;
-    public Map<String, DetalleListaBlanca> arrListaBlanca;
+    public Map<String, DetalleListaBlanca> arrListaBlanca = new HashMap<>();
     private String ubicacion;
     DefaultTableModel model;
     FrameDetalleListaBlanca frameDetalleListaBlanca;

@@ -5,6 +5,8 @@
  */
 package com.alvarogalia.Client;
 
+import com.alvarogalia.Client.Obj.DetalleListaBlanca;
+import com.alvarogalia.Client.Obj.DetalleListaNegra;
 import com.alvarogalia.Client.Obj.Historial;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
@@ -20,6 +22,7 @@ import java.awt.GraphicsEnvironment;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Map;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
@@ -85,7 +88,26 @@ public class Main extends javax.swing.JFrame {
     
     public void addRowToHistory(Historial hist) {
         DefaultTableModel model = (DefaultTableModel) tableHistorial.getModel();
-        model.insertRow(0, new Object[]{String.valueOf(hist.getTimestamp()), hist.getPpu(), false, ""});
+        Map<String, DetalleListaNegra> arrListaNegra = frameListaNegra.arrListaNegra;
+        Map<String, DetalleListaBlanca> arrListaBlanca = frameListaBlanca.arrListaBlanca;
+        
+        boolean registrado = false;
+        String listaNegra = "";
+        String listaBlanca = "";
+        String encargo = "";
+        try{
+            if(arrListaNegra.containsKey(hist.getPpu())){
+                listaNegra = "N";
+            }
+            if(arrListaBlanca.containsKey(hist.getPpu())){
+                listaBlanca = "B";
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        
+        String alerta = encargo+listaNegra+listaBlanca;
+        model.insertRow(0, new Object[]{String.valueOf(hist.getTimestamp()), hist.getPpu(), registrado, alerta});
     }
 
     public void addMasiveRowToHistory(DataSnapshot ds) {
@@ -126,7 +148,7 @@ public class Main extends javax.swing.JFrame {
         
         frameAgregarVisita = new FrameRegistrarVisita(database);
         frameRegistrarSalidaPPU = new FrameRegistrarSalidaPPU(database);
-        frameListaNegra = new FrameListaNegra(database);
+        frameListaNegra = new FrameListaNegra(database, this);
         frameListaBlanca = new FrameListaBlanca(database);
         
         refNowWatching = database.getReference("nowWatching/Ubicacion/Brasil/BR-CAM-1/ppu");

@@ -29,10 +29,10 @@ public class FrameListaNegra extends javax.swing.JFrame {
     DefaultTableModel model;
     FrameDetalleListaNegra frameDetalleListaNegra;
     
-    public Map<String, DetalleListaNegra> arrListaNegra;
-    public FrameListaNegra(FirebaseDatabase pDatabase) {
+    public Map<String, DetalleListaNegra> arrListaNegra = new HashMap<>();
+    public FrameListaNegra(FirebaseDatabase pDatabase, Main main) {
+        main.setVisible(false);
         initComponents();
-        arrListaNegra = new HashMap<>();
         database = pDatabase;
         frameDetalleListaNegra = new FrameDetalleListaNegra(database);
         ubicacion = "Brasil";
@@ -43,9 +43,14 @@ public class FrameListaNegra extends javax.swing.JFrame {
             @Override
             public void onChildAdded(DataSnapshot ds, String string) {
                 System.out.println(ds);
-                DetalleListaNegra detalle = ds.getValue(DetalleListaNegra.class);
+                try{
+                    DetalleListaNegra detalle = ds.getValue(DetalleListaNegra.class);
                 arrListaNegra.put(ds.getKey(), detalle);
                 model.insertRow(0, new Object[]{ds.getKey(),Util.longToDate(detalle.getTimestampIngreso()),detalle.getRazon(),detalle.getContactoInformante(),detalle.getAccion()});
+                }catch(Exception e){
+                    e.printStackTrace();
+                }
+                
             }
 
             @Override
