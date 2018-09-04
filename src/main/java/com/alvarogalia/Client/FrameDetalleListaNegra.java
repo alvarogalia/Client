@@ -185,10 +185,19 @@ public class FrameDetalleListaNegra extends javax.swing.JFrame {
     // End of variables declaration//GEN-END:variables
 
     public void limpiaCampos(){
+        txtPPU.setEnabled(true);
         txtAccion.setText("");
         txtContacto.setText("");
         txtPPU.setText("");
         txtRazon.setText("");
+    }
+
+    void cargaRegistro(String ppu, DetalleListaNegra detalle) {
+        txtPPU.setText(ppu);
+        txtPPU.setEnabled(false);
+        txtContacto.setText(detalle.getContactoInformante());
+        txtAccion.setText(detalle.getAccion());
+        txtRazon.setText(detalle.getRazon());
     }
 }
 

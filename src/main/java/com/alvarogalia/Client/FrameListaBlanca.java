@@ -27,9 +27,11 @@ public class FrameListaBlanca extends javax.swing.JFrame {
      */
     FirebaseDatabase database;
     public Map<String, DetalleListaBlanca> arrListaBlanca = new HashMap<>();
+    public boolean hayCambios = false;
     private String ubicacion;
     DefaultTableModel model;
     FrameDetalleListaBlanca frameDetalleListaBlanca;
+    
     public FrameListaBlanca(FirebaseDatabase pDatabase) {
         initComponents();
         database = pDatabase;
@@ -45,6 +47,7 @@ public class FrameListaBlanca extends javax.swing.JFrame {
                 DetalleListaBlanca detalle = ds.getValue(DetalleListaBlanca.class);
                 arrListaBlanca.put(ds.getKey(), detalle);
                 model.insertRow(0, new Object[]{ds.getKey(),Util.longToDate(detalle.getTimestampRegistro()),Util.longToDate(detalle.getTimestampVigenciaDesde()),Util.longToDate(detalle.getTimestampVigenciaHasta())});
+                hayCambios = true;
             }
 
             @Override
@@ -57,6 +60,7 @@ public class FrameListaBlanca extends javax.swing.JFrame {
                        model.insertRow(i, new Object[]{ds.getKey(),Util.longToDate(detalle.getTimestampRegistro()),Util.longToDate(detalle.getTimestampVigenciaDesde()),Util.longToDate(detalle.getTimestampVigenciaHasta())});
                    }
                 }
+                hayCambios = true;
             }
 
             @Override
@@ -68,6 +72,7 @@ public class FrameListaBlanca extends javax.swing.JFrame {
                        model.removeRow(i);
                    }
                 }
+                hayCambios = true;
             }
 
             @Override

@@ -5,8 +5,6 @@
  */
 package com.alvarogalia.Client;
 
-import com.alvarogalia.Client.Obj.DetalleListaBlanca;
-import com.alvarogalia.Client.Obj.DetalleListaNegra;
 import com.alvarogalia.Client.Obj.Historial;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
@@ -19,10 +17,12 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import java.awt.GraphicsEnvironment;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Map;
+import javax.swing.Timer;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
@@ -78,7 +78,6 @@ public class Main extends javax.swing.JFrame {
 
                 }
             });
-
         }
 
         @Override
@@ -88,18 +87,16 @@ public class Main extends javax.swing.JFrame {
     
     public void addRowToHistory(Historial hist) {
         DefaultTableModel model = (DefaultTableModel) tableHistorial.getModel();
-        Map<String, DetalleListaNegra> arrListaNegra = frameListaNegra.arrListaNegra;
-        Map<String, DetalleListaBlanca> arrListaBlanca = frameListaBlanca.arrListaBlanca;
         
         boolean registrado = false;
-        String listaNegra = "";
-        String listaBlanca = "";
-        String encargo = "";
+        String listaNegra = " ";
+        String listaBlanca = " ";
+        String encargo = " ";
         try{
-            if(arrListaNegra.containsKey(hist.getPpu())){
+            if(frameListaNegra.arrListaNegra.containsKey(hist.getPpu())){
                 listaNegra = "N";
             }
-            if(arrListaBlanca.containsKey(hist.getPpu())){
+            if(frameListaBlanca.arrListaBlanca.containsKey(hist.getPpu())){
                 listaBlanca = "B";
             }
         }catch(Exception e){
@@ -109,25 +106,7 @@ public class Main extends javax.swing.JFrame {
         String alerta = encargo+listaNegra+listaBlanca;
         model.insertRow(0, new Object[]{String.valueOf(hist.getTimestamp()), hist.getPpu(), registrado, alerta});
     }
-
-    public void addMasiveRowToHistory(DataSnapshot ds) {
-        DefaultTableModel model = (DefaultTableModel) tableHistorial.getModel();
-        for(DataSnapshot a : ds.getChildren()){
-            String value = "";
-            long hora = 0;
-            for(DataSnapshot b : a.getChildren()){
-                if("ppu".equals(b.getKey())){
-                    value=(String)b.getValue();
-                }
-                if("timestamp".equals(b.getKey())){
-                    hora=(long)b.getValue();
-                }
-            }
-            model.insertRow(0, new Object[]{hora, value, false, ""});
-        }
-        model.removeRow(0);
-        //jTable1.setModel(model);
-    }
+    
     public Main() throws FileNotFoundException, IOException {
         initComponents();
         
@@ -226,6 +205,32 @@ public class Main extends javax.swing.JFrame {
                 }
             }
         });
+        
+        Timer timer = new Timer(1000, (ActionEvent e) -> {
+            if(frameListaNegra.hayCambios || frameListaBlanca.hayCambios){
+                DefaultTableModel model = (DefaultTableModel) tableHistorial.getModel();
+                for(int i = 0; i < model.getRowCount(); i++){
+                    String patente  = (String) model.getValueAt(i, 1);
+                    StringBuilder value = new StringBuilder((String) model.getValueAt(i, 3));
+                    if(frameListaNegra.arrListaNegra.containsKey(patente)){
+                        value.setCharAt(1, 'N');
+                    }else{
+                        value.setCharAt(1, ' ');
+                    }
+                    if(frameListaBlanca.arrListaBlanca.containsKey(patente)){
+                        value.setCharAt(2, 'B');
+                    }else{
+                        value.setCharAt(2, ' ');
+                    }
+                    model.setValueAt(value.toString(), i, 3);
+                }
+                frameListaNegra.hayCambios = false;
+                frameListaBlanca.hayCambios = false;
+            }
+        });
+        
+        timer.start();
+        
     }
 
     /**
@@ -664,13 +669,4 @@ public class Main extends javax.swing.JFrame {
     private javax.swing.JTextField txtNombreRS;
     private javax.swing.JTextField txtRutPropietario;
     // End of variables declaration//GEN-END:variables
-
-    private void limpiaModel() {
-        DefaultTableModel model = (DefaultTableModel) tableHistorial.getModel();
-        if (model.getRowCount() > 100000) {
-            for (int i = 100; i <= model.getRowCount(); i++) {
-                model.removeRow(i);
-            }
-        }
-    }
 }

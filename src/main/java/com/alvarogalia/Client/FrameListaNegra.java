@@ -9,6 +9,7 @@ import com.alvarogalia.Client.Obj.DetalleListaNegra;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import java.util.HashMap;
@@ -30,6 +31,8 @@ public class FrameListaNegra extends javax.swing.JFrame {
     FrameDetalleListaNegra frameDetalleListaNegra;
     
     public Map<String, DetalleListaNegra> arrListaNegra = new HashMap<>();
+    public boolean hayCambios = false;
+    
     public FrameListaNegra(FirebaseDatabase pDatabase, Main main) {
         main.setVisible(false);
         initComponents();
@@ -46,11 +49,11 @@ public class FrameListaNegra extends javax.swing.JFrame {
                 try{
                     DetalleListaNegra detalle = ds.getValue(DetalleListaNegra.class);
                 arrListaNegra.put(ds.getKey(), detalle);
-                model.insertRow(0, new Object[]{ds.getKey(),Util.longToDate(detalle.getTimestampIngreso()),detalle.getRazon(),detalle.getContactoInformante(),detalle.getAccion()});
+                model.insertRow(model.getRowCount(), new Object[]{ds.getKey(),Util.longToDate(detalle.getTimestampIngreso()),detalle.getRazon(),detalle.getContactoInformante(),detalle.getAccion()});
                 }catch(Exception e){
                     e.printStackTrace();
                 }
-                
+                hayCambios = true;
             }
 
             @Override
@@ -63,17 +66,18 @@ public class FrameListaNegra extends javax.swing.JFrame {
                        model.insertRow(i, new Object[]{ds.getKey(),Util.longToDate(detalle.getTimestampIngreso()),detalle.getRazon(),detalle.getContactoInformante(),detalle.getAccion()});
                    }
                 }
+                hayCambios = true;
             }
 
             @Override
             public void onChildRemoved(DataSnapshot ds) {
-                DetalleListaNegra detalle = ds.getValue(DetalleListaNegra.class);
-                arrListaNegra.replace(ds.getKey(), detalle);
+                arrListaNegra.remove(ds.getKey());
                 for(int i = 0; i < model.getRowCount(); i++){
                    if(model.getValueAt(i, 0).equals(ds.getKey())){
                        model.removeRow(i);
                    }
                 }
+                hayCambios = true;
             }
 
             @Override
@@ -85,6 +89,7 @@ public class FrameListaNegra extends javax.swing.JFrame {
             }
         });
     }
+    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -139,6 +144,11 @@ public class FrameListaNegra extends javax.swing.JFrame {
         });
 
         btnEliminarRegistro.setText("Eliminar Registro");
+        btnEliminarRegistro.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEliminarRegistroActionPerformed(evt);
+            }
+        });
 
         btnCancelar.setText("Volver");
         btnCancelar.addActionListener(new java.awt.event.ActionListener() {
@@ -148,6 +158,11 @@ public class FrameListaNegra extends javax.swing.JFrame {
         });
 
         btnActualizarRegistro.setText("Actualizar Registro");
+        btnActualizarRegistro.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnActualizarRegistroActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -194,6 +209,22 @@ public class FrameListaNegra extends javax.swing.JFrame {
         frameDetalleListaNegra.setVisible(true);
         frameDetalleListaNegra.setDefaultCloseOperation(HIDE_ON_CLOSE);
     }//GEN-LAST:event_btnNuevoRegistroActionPerformed
+
+    private void btnActualizarRegistroActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnActualizarRegistroActionPerformed
+        frameDetalleListaNegra.limpiaCampos();
+        String key = (String) model.getValueAt(tblListaNegra.getSelectedRow(), 0);
+        DetalleListaNegra detalle = arrListaNegra.get(key);
+        frameDetalleListaNegra.cargaRegistro(key, detalle);
+        frameDetalleListaNegra.setLocationRelativeTo(null);
+        frameDetalleListaNegra.setVisible(true);
+        frameDetalleListaNegra.setDefaultCloseOperation(HIDE_ON_CLOSE);
+    }//GEN-LAST:event_btnActualizarRegistroActionPerformed
+
+    private void btnEliminarRegistroActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarRegistroActionPerformed
+        String key = (String) model.getValueAt(tblListaNegra.getSelectedRow(), 0);
+        DatabaseReference refListaNegra = database.getReference("listaNegra/" + ubicacion + "/" + key);
+        refListaNegra.removeValueAsync();
+    }//GEN-LAST:event_btnEliminarRegistroActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnActualizarRegistro;
