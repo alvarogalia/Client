@@ -7,11 +7,14 @@ package com.alvarogalia.Client;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
 import java.util.Arrays;
 import java.util.List;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import org.opencv.core.Mat;
 
 /**
  *
@@ -49,6 +52,21 @@ public class Util {
             c.setBackground(model.getRowColour(row));
             return c;
         }
+    }
+    public static BufferedImage Mat2BufferedImage(Mat m){
+
+        int type = BufferedImage.TYPE_BYTE_GRAY;
+        if (m.channels() > 1)
+        {
+            type = BufferedImage.TYPE_3BYTE_BGR;
+        }
+        int bufferSize = m.channels() * m.cols() * m.rows();
+        byte[] b = new byte[bufferSize];
+        m.get(0, 0, b); // get all the pixels
+        BufferedImage img = new BufferedImage(m.cols(), m.rows(), type);
+        final byte[] targetPixels = ((DataBufferByte) img.getRaster().getDataBuffer()).getData();
+        System.arraycopy(b, 0, targetPixels, 0, b.length);
+        return img;
     }
     
     static class ColorTableModel extends DefaultTableModel {

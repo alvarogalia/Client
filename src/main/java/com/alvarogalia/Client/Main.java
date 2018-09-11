@@ -16,16 +16,25 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import java.awt.Color;
 import java.awt.GraphicsEnvironment;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JFrame;
 import javax.swing.Timer;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
+import org.opencv.core.Core;
+import org.opencv.core.Mat;
+import org.opencv.videoio.VideoCapture;
 
 /**
  *
@@ -45,6 +54,11 @@ public class Main extends javax.swing.JFrame {
     
     FirebaseDatabase database;
     DatabaseReference refNowWatching;
+    
+    String url = "http://138.118.33.201/mjpg/video.mjpg?timestamp=1535125345478";
+    VideoCapture camera = new VideoCapture(url);
+    Thread thread;
+    VideoCamera panelImagenInterior = new VideoCamera(camera);
     
     ValueEventListener listenerNowWatching = new ValueEventListener() {
         @Override
@@ -108,6 +122,24 @@ public class Main extends javax.swing.JFrame {
     }
     
     public Main() throws FileNotFoundException, IOException {
+        this.redraw = new Runnable() {
+            @Override
+            public void run() {
+                while(true){
+                    if(camera.isOpened()){
+                        try {
+                            panelImagenInterior.repaint();
+                            long sleep = 500;
+                            Thread.sleep(sleep);
+                        } catch (InterruptedException ex) {
+                            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }else{
+                        camera.open(url);
+                    }
+                }
+            }
+        };
         initComponents();
         
         tableHistorial.getColumnModel().removeColumn(tableHistorial.getColumnModel().getColumn(0));
@@ -206,31 +238,42 @@ public class Main extends javax.swing.JFrame {
             }
         });
         
-        Timer timer = new Timer(1000, (ActionEvent e) -> {
-            if(frameListaNegra.hayCambios || frameListaBlanca.hayCambios){
-                DefaultTableModel model = (DefaultTableModel) tableHistorial.getModel();
-                for(int i = 0; i < model.getRowCount(); i++){
-                    String patente  = (String) model.getValueAt(i, 1);
-                    StringBuilder value = new StringBuilder((String) model.getValueAt(i, 3));
-                    if(frameListaNegra.arrListaNegra.containsKey(patente)){
-                        value.setCharAt(1, 'N');
-                    }else{
-                        value.setCharAt(1, ' ');
+        Timer timer = new Timer(100, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                
+                if(frameListaNegra.hayCambios || frameListaBlanca.hayCambios){
+                    DefaultTableModel model = (DefaultTableModel) tableHistorial.getModel();
+                    for(int i = 0; i < model.getRowCount(); i++){
+                        String patente  = (String) model.getValueAt(i, 1);
+                        StringBuilder value = new StringBuilder((String) model.getValueAt(i, 3));
+                        if(frameListaNegra.arrListaNegra.containsKey(patente)){
+                            value.setCharAt(1, 'N');
+                        }else{
+                            value.setCharAt(1, ' ');
+                        }
+                        if(frameListaBlanca.arrListaBlanca.containsKey(patente)){
+                            value.setCharAt(2, 'B');
+                        }else{
+                            value.setCharAt(2, ' ');
+                        }
+                        model.setValueAt(value.toString(), i, 3);
                     }
-                    if(frameListaBlanca.arrListaBlanca.containsKey(patente)){
-                        value.setCharAt(2, 'B');
-                    }else{
-                        value.setCharAt(2, ' ');
-                    }
-                    model.setValueAt(value.toString(), i, 3);
+                    frameListaNegra.hayCambios = false;
+                    frameListaBlanca.hayCambios = false;
                 }
-                frameListaNegra.hayCambios = false;
-                frameListaBlanca.hayCambios = false;
             }
         });
-        
         timer.start();
         
+        panelImagen.add(panelImagenInterior);
+        panelImagenInterior.setVisible(true);
+        panelImagen.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent componentEvent) {
+                panelImagenInterior.setBounds(panelImagen.getBounds());
+            }
+        });
     }
 
     /**
@@ -249,7 +292,7 @@ public class Main extends javax.swing.JFrame {
         jPanel3 = new javax.swing.JPanel();
         lblPatente = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
-        jPanel2 = new javax.swing.JPanel();
+        panelImagen = new javax.swing.JPanel();
         jPanel4 = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
         txtRutPropietario = new javax.swing.JTextField();
@@ -261,6 +304,8 @@ public class Main extends javax.swing.JFrame {
         jScrollPane3 = new javax.swing.JScrollPane();
         tblVisitas = new javax.swing.JTable();
         jLabel6 = new javax.swing.JLabel();
+        jButton1 = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
         btnVisitaRegistro = new javax.swing.JButton();
         btnEnVivo = new javax.swing.JButton();
         btnVisitaSalida = new javax.swing.JButton();
@@ -341,16 +386,14 @@ public class Main extends javax.swing.JFrame {
                 .addComponent(lblPatente, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
-        jPanel2.setBackground(new java.awt.Color(255, 255, 204));
-
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 297, Short.MAX_VALUE)
+        javax.swing.GroupLayout panelImagenLayout = new javax.swing.GroupLayout(panelImagen);
+        panelImagen.setLayout(panelImagenLayout);
+        panelImagenLayout.setHorizontalGroup(
+            panelImagenLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 417, Short.MAX_VALUE)
         );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        panelImagenLayout.setVerticalGroup(
+            panelImagenLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 0, Short.MAX_VALUE)
         );
 
@@ -417,6 +460,20 @@ public class Main extends javax.swing.JFrame {
 
         jLabel6.setText("Visitas Anteriores");
 
+        jButton1.setText("Start video stream");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
+        jButton2.setText("Stop video stream");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
@@ -431,7 +488,12 @@ public class Main extends javax.swing.JFrame {
                     .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                     .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                    .addGroup(jPanel4Layout.createSequentialGroup()
+                        .addComponent(jButton1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButton2)
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel4Layout.setVerticalGroup(
@@ -453,7 +515,11 @@ public class Main extends javax.swing.JFrame {
                 .addComponent(jLabel6)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 66, Short.MAX_VALUE)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton1)
+                    .addComponent(jButton2))
+                .addContainerGap())
         );
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
@@ -461,9 +527,9 @@ public class Main extends javax.swing.JFrame {
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(12, 12, 12)
+                .addComponent(panelImagen, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(12, 12, 12)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -478,9 +544,9 @@ public class Main extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addContainerGap())
+                        .addGap(12, 12, 12)
+                        .addComponent(panelImagen, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addGap(12, 12, 12))
         );
 
         jTabbedPane1.addTab("BR-CAM-1", jPanel1);
@@ -543,7 +609,7 @@ public class Main extends javax.swing.JFrame {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 551, Short.MAX_VALUE)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -603,6 +669,16 @@ public class Main extends javax.swing.JFrame {
         frameListaBlanca.setDefaultCloseOperation(HIDE_ON_CLOSE);
     }//GEN-LAST:event_btnListaBlancaActionPerformed
 
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        this.thread = new Thread(redraw);
+        thread.setPriority(Thread.MIN_PRIORITY);
+        thread.start();
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        thread.stop();
+    }//GEN-LAST:event_jButton2ActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -635,7 +711,9 @@ public class Main extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 try {
+                    System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
                     new Main().setVisible(true);
+                    
                 } catch (IOException ex) {
                     System.out.println(ex.getMessage());
                 }
@@ -649,13 +727,14 @@ public class Main extends javax.swing.JFrame {
     private javax.swing.JButton btnListaNegra;
     private javax.swing.JButton btnVisitaRegistro;
     private javax.swing.JButton btnVisitaSalida;
+    private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JScrollPane jScrollPane1;
@@ -663,10 +742,14 @@ public class Main extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JLabel lblPatente;
+    private javax.swing.JPanel panelImagen;
     private javax.swing.JTable tableHistorial;
     private javax.swing.JTable tblChoferRegistrado;
     private javax.swing.JTable tblVisitas;
     private javax.swing.JTextField txtNombreRS;
     private javax.swing.JTextField txtRutPropietario;
     // End of variables declaration//GEN-END:variables
+
+    private final Runnable redraw;
+
 }

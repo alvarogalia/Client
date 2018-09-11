@@ -89,6 +89,11 @@ public class FrameDetalleListaBlanca extends javax.swing.JFrame {
         jLabel4.setText("Vigencia hasta");
 
         btnCancelar.setText("Cancelar");
+        btnCancelar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCancelarActionPerformed(evt);
+            }
+        });
 
         btnGrabar.setText("Grabar");
         btnGrabar.addActionListener(new java.awt.event.ActionListener() {
@@ -164,6 +169,10 @@ public class FrameDetalleListaBlanca extends javax.swing.JFrame {
         DatabaseReference refListaNegra = database.getReference("listaNegra/" + ubicacion);
         refListaNegra.updateChildrenAsync(map);
     }//GEN-LAST:event_btnGrabarActionPerformed
+
+    private void btnCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelarActionPerformed
+        setVisible(false);
+    }//GEN-LAST:event_btnCancelarActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

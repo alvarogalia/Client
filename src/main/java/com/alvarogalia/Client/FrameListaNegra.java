@@ -45,11 +45,10 @@ public class FrameListaNegra extends javax.swing.JFrame {
         qListaNegra.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot ds, String string) {
-                System.out.println(ds);
                 try{
                     DetalleListaNegra detalle = ds.getValue(DetalleListaNegra.class);
-                arrListaNegra.put(ds.getKey(), detalle);
-                model.insertRow(model.getRowCount(), new Object[]{ds.getKey(),Util.longToDate(detalle.getTimestampIngreso()),detalle.getRazon(),detalle.getContactoInformante(),detalle.getAccion()});
+                    arrListaNegra.put(ds.getKey(), detalle);
+                    model.insertRow(model.getRowCount(), new Object[]{ds.getKey(),Util.longToDate(detalle.getTimestampIngreso()),detalle.getRazon(),detalle.getContactoInformante(),detalle.getAccion()});
                 }catch(Exception e){
                     e.printStackTrace();
                 }

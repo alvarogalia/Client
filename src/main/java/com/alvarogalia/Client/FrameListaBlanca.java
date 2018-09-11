@@ -6,7 +6,6 @@
 package com.alvarogalia.Client;
 
 import com.alvarogalia.Client.Obj.DetalleListaBlanca;
-import com.alvarogalia.Client.Obj.DetalleListaNegra;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -43,7 +42,6 @@ public class FrameListaBlanca extends javax.swing.JFrame {
         qListaNegra.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot ds, String string) {
-                System.out.println(ds);
                 DetalleListaBlanca detalle = ds.getValue(DetalleListaBlanca.class);
                 arrListaBlanca.put(ds.getKey(), detalle);
                 model.insertRow(0, new Object[]{ds.getKey(),Util.longToDate(detalle.getTimestampRegistro()),Util.longToDate(detalle.getTimestampVigenciaDesde()),Util.longToDate(detalle.getTimestampVigenciaHasta())});
@@ -135,6 +133,11 @@ public class FrameListaBlanca extends javax.swing.JFrame {
         }
 
         btnVolver.setText("Volver");
+        btnVolver.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnVolverActionPerformed(evt);
+            }
+        });
 
         btnRegistroNuevo.setText("Nuevo Registro");
         btnRegistroNuevo.addActionListener(new java.awt.event.ActionListener() {
@@ -187,6 +190,11 @@ public class FrameListaBlanca extends javax.swing.JFrame {
         frameDetalleListaBlanca.setVisible(true);
         frameDetalleListaBlanca.setDefaultCloseOperation(HIDE_ON_CLOSE);
     }//GEN-LAST:event_btnRegistroNuevoActionPerformed
+
+    private void btnVolverActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVolverActionPerformed
+        setVisible(false);
+        frameDetalleListaBlanca.setVisible(false);
+    }//GEN-LAST:event_btnVolverActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnActualizarRegistro;
