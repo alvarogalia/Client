@@ -138,7 +138,7 @@ public class Main extends javax.swing.JFrame {
                 if(camera.isOpened()){
                     try {
                         panelImagenInterior.repaint();
-                        long sleep = 500;
+                        long sleep = 33;
                         Thread.sleep(sleep);
                     } catch (InterruptedException ex) {
                         Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);

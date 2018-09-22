@@ -48,9 +48,9 @@
             <version>10.3.1</version>
         </dependency>
         <dependency>
-            <groupId>org.openpnp</groupId>
+            <groupId>org.opencv</groupId>
             <artifactId>opencv</artifactId>
-            <version>3.2.0-0</version>
+            <version>343</version>
         </dependency>
     </dependencies>
 </project>
