@@ -9,22 +9,22 @@ package com.alvarogalia.Client.Obj;
  *
  * @author GENESYS
  */
-public class Historial {
-    private String ubicacion;
+public class Spotted {
+    private String ppu;
     private String camara;
 
     /**
-     * @return the ubicacion
+     * @return the ppu
      */
-    public String getUbicacion() {
-        return ubicacion;
+    public String getPpu() {
+        return ppu;
     }
 
     /**
-     * @param ubicacion the ubicacion to set
+     * @param ppu the ppu to set
      */
-    public void setUbicacion(String ubicacion) {
-        this.ubicacion = ubicacion;
+    public void setPpu(String ppu) {
+        this.ppu = ppu;
     }
 
     /**

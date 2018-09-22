@@ -5,6 +5,8 @@
  */
 package com.alvarogalia.Client;
 
+import com.alvarogalia.Client.Obj.NowWatching;
+import com.alvarogalia.Client.Obj.Spotted;
 import com.alvarogalia.Client.Obj.Historial;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
@@ -16,10 +18,14 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-import java.awt.Color;
+import java.awt.AWTException;
 import java.awt.GraphicsEnvironment;
+import java.awt.Image;
+import java.awt.SystemTray;
+import java.awt.Toolkit;
+import java.awt.TrayIcon;
+import java.awt.TrayIcon.MessageType;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.io.FileInputStream;
@@ -27,13 +33,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JFrame;
 import javax.swing.Timer;
 import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import org.opencv.core.Core;
-import org.opencv.core.Mat;
 import org.opencv.videoio.VideoCapture;
 
 /**
@@ -46,6 +49,11 @@ public class Main extends javax.swing.JFrame {
      * Creates new form Main2
      * @param hist
      */
+    
+    String holding = "BRASIL";
+    String ubicacion = "RIO";
+    String camara = "CAM-01";
+    
     FrameRegistrarVisita frameAgregarVisita;
     FrameRegistrarSalidaPPU frameRegistrarSalidaPPU;
     FrameListaNegra frameListaNegra;
@@ -55,94 +63,95 @@ public class Main extends javax.swing.JFrame {
     FirebaseDatabase database;
     DatabaseReference refNowWatching;
     
-    String url = "http://138.118.33.201/mjpg/video.mjpg?timestamp=1535125345478";
-    VideoCapture camera = new VideoCapture(url);
+    //String url = "http://138.118.33.201/mjpg/video.mjpg?timestamp=1535125345478";
+    //VideoCapture camera = new VideoCapture(url);
+    VideoCapture camera = new VideoCapture(0);
     Thread thread;
     VideoCamera panelImagenInterior = new VideoCamera(camera);
     
-    ValueEventListener listenerNowWatching = new ValueEventListener() {
-        @Override
-        public void onDataChange(DataSnapshot dataSnapshot) {
-            String ppu = dataSnapshot.getValue(String.class);
-            lblPatente.setText(ppu);
-
-            DefaultTableModel model = (DefaultTableModel)tblVisitas.getModel();
-            while(model.getRowCount() > 0){
-                model.removeRow(0);
-            }
-
-            Query qVisitas = database.getReference("historial/Ubicacion/Brasil/").orderByChild("ppu").equalTo(ppu);
-            qVisitas.addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot ds) {
-                    DefaultTableModel model = (DefaultTableModel)tblVisitas.getModel();
-                    while(model.getRowCount() > 0){
-                        model.removeRow(0);
-                    }
-                    int i = 0;
-                    for(DataSnapshot snap : ds.getChildren()){
-                        Historial hist2 = snap.getValue(Historial.class);
-                        model.insertRow(i, new Object[]{Util.longToDate(hist2.getTimestamp()),hist2.getPpu()});
-                        i++;
-                    }
-                }
-
-                @Override
-                public void onCancelled(DatabaseError de) {
-
-                }
-            });
-        }
-
-        @Override
-        public void onCancelled(DatabaseError de) {
-        }
-    };
+    ValueEventListener listenerNowWatching;
     
-    public void addRowToHistory(Historial hist) {
-        DefaultTableModel model = (DefaultTableModel) tableHistorial.getModel();
+    public void addRowToHistory(String key, Spotted spot) {
+        DefaultTableModel model = (DefaultTableModel) tblSpotted.getModel();
         
         boolean registrado = false;
         String listaNegra = " ";
         String listaBlanca = " ";
         String encargo = " ";
         try{
-            if(frameListaNegra.arrListaNegra.containsKey(hist.getPpu())){
+            if(frameListaNegra.arrListaNegra.containsKey(spot.getPpu())){
                 listaNegra = "N";
             }
-            if(frameListaBlanca.arrListaBlanca.containsKey(hist.getPpu())){
+            if(frameListaBlanca.arrListaBlanca.containsKey(spot.getPpu())){
                 listaBlanca = "B";
             }
         }catch(Exception e){
-            e.printStackTrace();
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, e);
         }
         
         String alerta = encargo+listaNegra+listaBlanca;
-        model.insertRow(0, new Object[]{String.valueOf(hist.getTimestamp()), hist.getPpu(), registrado, alerta});
+        model.insertRow(0, new Object[]{key, spot.getPpu(), registrado, alerta});
     }
     
     public Main() throws FileNotFoundException, IOException {
-        this.redraw = new Runnable() {
+        this.listenerNowWatching = new ValueEventListener() {
             @Override
-            public void run() {
-                while(true){
-                    if(camera.isOpened()){
-                        try {
-                            panelImagenInterior.repaint();
-                            long sleep = 500;
-                            Thread.sleep(sleep);
-                        } catch (InterruptedException ex) {
-                            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                NowWatching nowWatching = dataSnapshot.getValue(NowWatching.class);
+                lblPatente.setText(nowWatching.getPpu());
+                
+                DefaultTableModel model = (DefaultTableModel)tblHistorial.getModel();
+                while(model.getRowCount() > 0){
+                    model.removeRow(0);
+                }
+                
+                Query qVisitas = database.getReference("Historial").child(holding).child(nowWatching.getPpu());
+                qVisitas.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot ds) {
+                        DefaultTableModel model = (DefaultTableModel)tblHistorial.getModel();
+                        while(model.getRowCount() > 0){
+                            model.removeRow(0);
                         }
-                    }else{
-                        camera.open(url);
+                        int i = 0;
+                        for(DataSnapshot snap : ds.getChildren()){
+                            Historial hist = snap.getValue(Historial.class);
+                            long timestamp = Long.parseLong(snap.getKey());
+                            model.insertRow(i, new Object[]{Util.longToDate(timestamp),hist.getUbicacion(),hist.getCamara()});
+                            i++;
+                        }
                     }
+                    
+                    @Override
+                    public void onCancelled(DatabaseError de) {
+                        
+                    }
+                });
+            }
+            
+            @Override
+            public void onCancelled(DatabaseError de) {
+            }
+        };
+        this.redraw = () -> {
+            while(true){
+                if(camera.isOpened()){
+                    try {
+                        panelImagenInterior.repaint();
+                        long sleep = 500;
+                        Thread.sleep(sleep);
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }else{
+                    //camera.open(url);
+                    camera.open(0);
                 }
             }
         };
         initComponents();
         
-        tableHistorial.getColumnModel().removeColumn(tableHistorial.getColumnModel().getColumn(0));
+        tblSpotted.getColumnModel().removeColumn(tblSpotted.getColumnModel().getColumn(0));
         
         GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
         this.setMaximizedBounds(env.getMaximumWindowBounds());
@@ -162,15 +171,30 @@ public class Main extends javax.swing.JFrame {
         frameListaNegra = new FrameListaNegra(database, this);
         frameListaBlanca = new FrameListaBlanca(database);
         
-        refNowWatching = database.getReference("nowWatching/Ubicacion/Brasil/BR-CAM-1/ppu");
+        refNowWatching = database.getReference("NowWatching").child(holding).child(ubicacion).child(camara);
         refNowWatching.addValueEventListener(listenerNowWatching);
 
-        Query qrefHistNew = database.getReference("historial/Ubicacion/Brasil").limitToLast(100);
+        Query qrefHistNew = database.getReference("Spotted").child(holding).child(ubicacion).limitToLast(100);
         qrefHistNew.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot ds, String string) {                        
-                Historial hist = ds.getValue(Historial.class);
-                addRowToHistory(hist);
+                Spotted spot = ds.getValue(Spotted.class);
+                addRowToHistory(ds.getKey(), spot);
+                if(frameListaNegra.arrListaNegra.containsKey(spot.getPpu())){
+                    try {
+                        SystemTray tray = SystemTray.getSystemTray();
+                        Image image = Toolkit.getDefaultToolkit().createImage("listanegra.png");
+                        TrayIcon trayIcon = new TrayIcon(image, "Lista Negra");
+                        trayIcon.setImageAutoSize(true);
+                        trayIcon.setToolTip("Lista negra");
+                        tray.add(trayIcon);
+                        trayIcon.displayMessage("Patente en lista negra!", "Patente " + spot.getPpu() + 
+                                " visualizada en cámara " + spot.getCamara() + ". Registra " + 
+                                frameListaNegra.arrListaNegra.get(spot.getPpu()).getRazon(), MessageType.WARNING);
+                    } catch (AWTException ex) {
+                        Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
             }
 
             @Override
@@ -180,7 +204,7 @@ public class Main extends javax.swing.JFrame {
 
             @Override
             public void onChildRemoved(DataSnapshot ds) {
-                DefaultTableModel model = (DefaultTableModel)tableHistorial.getModel();
+                DefaultTableModel model = (DefaultTableModel)tblSpotted.getModel();
                 for(int i = 0; i < model.getRowCount(); i++){
                     if(ds.getKey().equals(model.getValueAt(i, 0))){
                         model.removeRow(i);
@@ -198,70 +222,64 @@ public class Main extends javax.swing.JFrame {
             }
         });
         
-        tableHistorial.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-            @Override
-            public void valueChanged(ListSelectionEvent e) {
-                if (!e.getValueIsAdjusting() && tableHistorial.getSelectedRowCount() > 0) {
-                    refNowWatching.removeEventListener(listenerNowWatching);
-
-                    DefaultTableModel model = (DefaultTableModel)tblVisitas.getModel();
-                    while(model.getRowCount() > 0){
-                        model.removeRow(0);
-                    }
-
-                    String ppu = (String) tableHistorial.getModel().getValueAt(tableHistorial.getSelectedRow(), 1);
-                    lblPatente.setText(ppu);
-                    Query qVisitas = database.getReference("historial/Ubicacion/Brasil/").orderByChild("ppu").equalTo(ppu);
-                    qVisitas.addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot ds){
-                            DefaultTableModel model = (DefaultTableModel)tblVisitas.getModel();
-                            while(model.getRowCount() > 0){
-                                model.removeRow(0);
-                            }
-                            
-                            int i = 0;
-                            for(DataSnapshot snap : ds.getChildren()){
-                                Historial hist2 = snap.getValue(Historial.class);
-                                model.insertRow(i, new Object[]{Util.longToDate(hist2.getTimestamp()),hist2.getPpu()});
-                                i++;
-                            }
-                            //tableVisitas.setModel(model);
-                        }
-
-                        @Override
-                        public void onCancelled(DatabaseError de) {
-
-                        }
-                    });
+        tblSpotted.getSelectionModel().addListSelectionListener((ListSelectionEvent e) -> {
+            if (!e.getValueIsAdjusting() && tblSpotted.getSelectedRowCount() > 0) {
+                btnEnVivo.setVisible(true);
+                refNowWatching.removeEventListener(listenerNowWatching);
+                
+                DefaultTableModel model = (DefaultTableModel)tblHistorial.getModel();
+                while(model.getRowCount() > 0){
+                    model.removeRow(0);
                 }
+                
+                String ppu = (String) tblSpotted.getModel().getValueAt(tblSpotted.getSelectedRow(), 1);
+                lblPatente.setText(ppu);
+                Query qVisitas = database.getReference("Historial").child(holding).child(ppu);
+                qVisitas.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot ds){
+                        DefaultTableModel model = (DefaultTableModel)tblHistorial.getModel();
+                        while(model.getRowCount() > 0){
+                            model.removeRow(0);
+                        }
+                        
+                        int i = 0;
+                        for(DataSnapshot snap : ds.getChildren()){
+                            Historial hist = snap.getValue(Historial.class);
+                            long timestamp = Long.parseLong(snap.getKey());
+                            model.insertRow(i, new Object[]{Util.longToDate(timestamp),hist.getUbicacion(), hist.getCamara()});
+                            i++;
+                        }
+                    }
+                    
+                    @Override
+                    public void onCancelled(DatabaseError de) {
+                        
+                    }
+                });
             }
         });
         
-        Timer timer = new Timer(100, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                
-                if(frameListaNegra.hayCambios || frameListaBlanca.hayCambios){
-                    DefaultTableModel model = (DefaultTableModel) tableHistorial.getModel();
-                    for(int i = 0; i < model.getRowCount(); i++){
-                        String patente  = (String) model.getValueAt(i, 1);
-                        StringBuilder value = new StringBuilder((String) model.getValueAt(i, 3));
-                        if(frameListaNegra.arrListaNegra.containsKey(patente)){
-                            value.setCharAt(1, 'N');
-                        }else{
-                            value.setCharAt(1, ' ');
-                        }
-                        if(frameListaBlanca.arrListaBlanca.containsKey(patente)){
-                            value.setCharAt(2, 'B');
-                        }else{
-                            value.setCharAt(2, ' ');
-                        }
-                        model.setValueAt(value.toString(), i, 3);
+        Timer timer = new Timer(100, (ActionEvent e) -> {
+            if(frameListaNegra.hayCambios || frameListaBlanca.hayCambios){
+                DefaultTableModel model = (DefaultTableModel) tblSpotted.getModel();
+                for(int i = 0; i < model.getRowCount(); i++){
+                    String patente  = (String) model.getValueAt(i, 1);
+                    StringBuilder value = new StringBuilder((String) model.getValueAt(i, 3));
+                    if(frameListaNegra.arrListaNegra.containsKey(patente)){
+                        value.setCharAt(1, 'N');
+                    }else{
+                        value.setCharAt(1, ' ');
                     }
-                    frameListaNegra.hayCambios = false;
-                    frameListaBlanca.hayCambios = false;
+                    if(frameListaBlanca.arrListaBlanca.containsKey(patente)){
+                        value.setCharAt(2, 'B');
+                    }else{
+                        value.setCharAt(2, ' ');
+                    }
+                    model.setValueAt(value.toString(), i, 3);
                 }
+                frameListaNegra.hayCambios = false;
+                frameListaBlanca.hayCambios = false;
             }
         });
         timer.start();
@@ -286,14 +304,14 @@ public class Main extends javax.swing.JFrame {
     private void initComponents() {
 
         jScrollPane1 = new javax.swing.JScrollPane();
-        tableHistorial = new javax.swing.JTable();
+        tblSpotted = new javax.swing.JTable();
         jTabbedPane1 = new javax.swing.JTabbedPane();
         jPanel1 = new javax.swing.JPanel();
-        jPanel3 = new javax.swing.JPanel();
+        panelNowWatching = new javax.swing.JPanel();
         lblPatente = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         panelImagen = new javax.swing.JPanel();
-        jPanel4 = new javax.swing.JPanel();
+        panelInfo = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
         txtRutPropietario = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
@@ -302,7 +320,7 @@ public class Main extends javax.swing.JFrame {
         jScrollPane2 = new javax.swing.JScrollPane();
         tblChoferRegistrado = new javax.swing.JTable();
         jScrollPane3 = new javax.swing.JScrollPane();
-        tblVisitas = new javax.swing.JTable();
+        tblHistorial = new javax.swing.JTable();
         jLabel6 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
@@ -321,9 +339,9 @@ public class Main extends javax.swing.JFrame {
         jScrollPane1.setMaximumSize(new java.awt.Dimension(453, 403));
         jScrollPane1.setMinimumSize(new java.awt.Dimension(453, 403));
 
-        tableHistorial.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        tableHistorial.setFont(new java.awt.Font("Courier New", 0, 12)); // NOI18N
-        tableHistorial.setModel(new javax.swing.table.DefaultTableModel(
+        tblSpotted.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        tblSpotted.setFont(new java.awt.Font("Courier New", 0, 12)); // NOI18N
+        tblSpotted.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
@@ -346,15 +364,15 @@ public class Main extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
-        tableHistorial.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
-        tableHistorial.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        tableHistorial.setUpdateSelectionOnSort(false);
-        tableHistorial.addContainerListener(new java.awt.event.ContainerAdapter() {
+        tblSpotted.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        tblSpotted.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        tblSpotted.setUpdateSelectionOnSort(false);
+        tblSpotted.addContainerListener(new java.awt.event.ContainerAdapter() {
             public void componentAdded(java.awt.event.ContainerEvent evt) {
-                tableHistorialComponentAdded(evt);
+                tblSpottedComponentAdded(evt);
             }
         });
-        jScrollPane1.setViewportView(tableHistorial);
+        jScrollPane1.setViewportView(tblSpotted);
 
         lblPatente.setFont(new java.awt.Font("Courier New", 1, 18)); // NOI18N
         lblPatente.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -366,21 +384,21 @@ public class Main extends javax.swing.JFrame {
         jLabel2.setText("Última lectura");
         jLabel2.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
 
-        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
-        jPanel3.setLayout(jPanel3Layout);
-        jPanel3Layout.setHorizontalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        javax.swing.GroupLayout panelNowWatchingLayout = new javax.swing.GroupLayout(panelNowWatching);
+        panelNowWatching.setLayout(panelNowWatchingLayout);
+        panelNowWatchingLayout.setHorizontalGroup(
+            panelNowWatchingLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelNowWatchingLayout.createSequentialGroup()
+                .addGroup(panelNowWatchingLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(jPanel3Layout.createSequentialGroup()
+                    .addGroup(panelNowWatchingLayout.createSequentialGroup()
                         .addGap(12, 12, 12)
                         .addComponent(lblPatente, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addContainerGap())
         );
-        jPanel3Layout.setVerticalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
+        panelNowWatchingLayout.setVerticalGroup(
+            panelNowWatchingLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelNowWatchingLayout.createSequentialGroup()
                 .addComponent(jLabel2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(lblPatente, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -440,7 +458,7 @@ public class Main extends javax.swing.JFrame {
         });
         jScrollPane2.setViewportView(tblChoferRegistrado);
 
-        tblVisitas.setModel(new javax.swing.table.DefaultTableModel(
+        tblHistorial.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
@@ -456,7 +474,7 @@ public class Main extends javax.swing.JFrame {
                 return types [columnIndex];
             }
         });
-        jScrollPane3.setViewportView(tblVisitas);
+        jScrollPane3.setViewportView(tblHistorial);
 
         jLabel6.setText("Visitas Anteriores");
 
@@ -474,13 +492,13 @@ public class Main extends javax.swing.JFrame {
             }
         });
 
-        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
-        jPanel4.setLayout(jPanel4Layout);
-        jPanel4Layout.setHorizontalGroup(
-            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel4Layout.createSequentialGroup()
+        javax.swing.GroupLayout panelInfoLayout = new javax.swing.GroupLayout(panelInfo);
+        panelInfo.setLayout(panelInfoLayout);
+        panelInfoLayout.setHorizontalGroup(
+            panelInfoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelInfoLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(panelInfoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(txtRutPropietario)
                     .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, 364, Short.MAX_VALUE)
@@ -489,16 +507,16 @@ public class Main extends javax.swing.JFrame {
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                     .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                    .addGroup(jPanel4Layout.createSequentialGroup()
+                    .addGroup(panelInfoLayout.createSequentialGroup()
                         .addComponent(jButton1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButton2)
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
-        jPanel4Layout.setVerticalGroup(
-            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel4Layout.createSequentialGroup()
+        panelInfoLayout.setVerticalGroup(
+            panelInfoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelInfoLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel3)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -515,8 +533,8 @@ public class Main extends javax.swing.JFrame {
                 .addComponent(jLabel6)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 66, Short.MAX_VALUE)
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(panelInfoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton1)
                     .addComponent(jButton2))
                 .addContainerGap())
@@ -531,8 +549,8 @@ public class Main extends javax.swing.JFrame {
                 .addComponent(panelImagen, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGap(12, 12, 12)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(panelInfo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(panelNowWatching, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -540,9 +558,9 @@ public class Main extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(panelNowWatching, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(panelInfo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(12, 12, 12)
                         .addComponent(panelImagen, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
@@ -609,7 +627,7 @@ public class Main extends javax.swing.JFrame {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 582, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -625,13 +643,14 @@ public class Main extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void tableHistorialComponentAdded(java.awt.event.ContainerEvent evt) {//GEN-FIRST:event_tableHistorialComponentAdded
+    private void tblSpottedComponentAdded(java.awt.event.ContainerEvent evt) {//GEN-FIRST:event_tblSpottedComponentAdded
         
-    }//GEN-LAST:event_tableHistorialComponentAdded
+    }//GEN-LAST:event_tblSpottedComponentAdded
 
     private void btnEnVivoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEnVivoActionPerformed
         refNowWatching.addValueEventListener(listenerNowWatching);
-        tableHistorial.clearSelection();
+        tblSpotted.clearSelection();
+        btnEnVivo.setVisible(false);
     }//GEN-LAST:event_btnEnVivoActionPerformed
 
     private void txtRutPropietarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtRutPropietarioActionPerformed
@@ -695,28 +714,26 @@ public class Main extends javax.swing.JFrame {
                     break;
                 }
             }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Main.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Main.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Main.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(Main.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
         //</editor-fold>
+        
+        //</editor-fold>
+        //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                try {
-                    System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-                    new Main().setVisible(true);
-                    
-                } catch (IOException ex) {
-                    System.out.println(ex.getMessage());
-                }
+        System.out.println("Library PATH:");
+        System.out.println(System.getProperty("java.library.path"));
+        
+        java.awt.EventQueue.invokeLater(() -> {
+            try {
+                System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+                new Main().setVisible(true);
+                
+            } catch (IOException ex) {
+                System.out.println(ex.getMessage());
             }
         });
     }
@@ -735,17 +752,17 @@ public class Main extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel3;
-    private javax.swing.JPanel jPanel4;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JLabel lblPatente;
     private javax.swing.JPanel panelImagen;
-    private javax.swing.JTable tableHistorial;
+    private javax.swing.JPanel panelInfo;
+    private javax.swing.JPanel panelNowWatching;
     private javax.swing.JTable tblChoferRegistrado;
-    private javax.swing.JTable tblVisitas;
+    private javax.swing.JTable tblHistorial;
+    private javax.swing.JTable tblSpotted;
     private javax.swing.JTextField txtNombreRS;
     private javax.swing.JTextField txtRutPropietario;
     // End of variables declaration//GEN-END:variables
