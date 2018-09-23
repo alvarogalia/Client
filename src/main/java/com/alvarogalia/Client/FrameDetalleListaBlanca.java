@@ -6,17 +6,12 @@
 package com.alvarogalia.Client;
 
 import com.alvarogalia.Client.Obj.DetalleListaBlanca;
-import com.alvarogalia.Client.Obj.DetalleListaNegra;
-import com.github.lgooddatepicker.components.DatePicker;
 import com.github.lgooddatepicker.components.DatePickerSettings;
-import com.github.lgooddatepicker.components.TimePicker;
-import com.github.lgooddatepicker.components.TimePickerSettings;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
-import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
