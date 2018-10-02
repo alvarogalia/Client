@@ -5,6 +5,13 @@ import java.awt.image.BufferedImage;
 import javax.swing.JPanel;
 
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfRect;
+import org.opencv.core.Point;
+import org.opencv.core.Rect;
+import org.opencv.core.Scalar;
+import org.opencv.core.Size;
+import org.opencv.imgproc.Imgproc;
+import org.opencv.objdetect.CascadeClassifier;
 import org.opencv.videoio.VideoCapture;
 
 
@@ -24,6 +31,17 @@ public class VideoCamera extends JPanel
         Mat mat = new Mat();
         if( camera.read(mat))
         {
+            MatOfRect objects = new MatOfRect();
+            CascadeClassifier classifier =  new CascadeClassifier("data/cascade.xml");
+            classifier.detectMultiScale(mat, objects, 1.1, 8,0, new Size(360, 360));
+            if(!objects.empty()){
+                Scalar Detect_Color = new Scalar(0, 255, 0, 255);
+                for(int i = 0; i < objects.toList().size(); i++){
+                    Rect rect = objects.toList().get(0);
+                    Imgproc.rectangle(mat, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height), Detect_Color, 5);
+                }
+            }
+            
             BufferedImage image = Util.Mat2BufferedImage(mat);
             double relation = 640.0/480.0;
             int finalWidth = this.getBounds().width-12;
