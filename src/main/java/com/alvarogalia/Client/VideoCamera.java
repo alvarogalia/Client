@@ -33,7 +33,7 @@ public class VideoCamera extends JPanel
         {
             MatOfRect objects = new MatOfRect();
             CascadeClassifier classifier =  new CascadeClassifier("data/cascade.xml");
-            classifier.detectMultiScale(mat, objects, 1.1, 8,0, new Size(360, 360));
+            classifier.detectMultiScale(mat, objects, 1.1, 8,0, new Size(130, 130));
             if(!objects.empty()){
                 Scalar Detect_Color = new Scalar(0, 255, 0, 255);
                 for(int i = 0; i < objects.toList().size(); i++){
