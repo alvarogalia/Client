@@ -3,8 +3,8 @@
 <cascade>
   <stageType>BOOST</stageType>
   <featureType>LBP</featureType>
-  <height>50</height>
-  <width>50</width>
+  <height>24</height>
+  <width>24</width>
   <stageParams>
     <boostType>GAB</boostType>
     <minHitRate>9.9500000476837158e-01</minHitRate>
@@ -24,8 +24,8 @@
       <weakClassifiers>
         <_>
           <internalNodes>
-            0 -1 2 -754845729 -716074991 1359003893 -585655029
-            -394223366 -662173439 -938966789 -73678353</internalNodes>
+            0 -1 2 -782904833 1964736649 285300739 -244887477 1082376363
+            -930611191 -1995972209 -262193</internalNodes>
           <leafValues>
             -1. 1.</leafValues></_></weakClassifiers></_>
     <!-- stage 1 -->
@@ -35,32 +35,32 @@
       <weakClassifiers>
         <_>
           <internalNodes>
-            0 -1 4 -225053217 -677265065 1228931509 -8584431 -920414981
-            -33553823 -1962365973 -69483877</internalNodes>
+            0 -1 0 -540090625 -3582669 -461334051 -40600641 -811533889
+            -75329383 -2004698437 -72632129</internalNodes>
           <leafValues>
             -1. 1.</leafValues></_></weakClassifiers></_>
     <!-- stage 2 -->
     <_>
       <maxWeakCount>1</maxWeakCount>
-      <stageThreshold>1.</stageThreshold>
+      <stageThreshold>9.9875080585479736e-01</stageThreshold>
       <weakClassifiers>
         <_>
           <internalNodes>
-            0 -1 1 -673841153 -716095087 1494270587 -546078239
-            -121461317 -613379925 -938693445 -6558069</internalNodes>
+            0 -1 3 -211815425 -177480753 25375489 -587087869 -787234645
+            -259268088 -1709657125 -9521</internalNodes>
           <leafValues>
-            -1. 1.</leafValues></_></weakClassifiers></_>
+            -1. 9.9875080585479736e-01</leafValues></_></weakClassifiers></_>
     <!-- stage 3 -->
     <_>
       <maxWeakCount>1</maxWeakCount>
-      <stageThreshold>1.</stageThreshold>
+      <stageThreshold>9.9875080585479736e-01</stageThreshold>
       <weakClassifiers>
         <_>
           <internalNodes>
-            0 -1 3 -747110913 -1622707769 707625343 -150101927
-            -443683841 -382754801 -357586513 -135530001</internalNodes>
+            0 -1 1 -53005321 -573201995 -343582977 -39877433 -207618305
+            -69490163 -1178484481 -70527799</internalNodes>
           <leafValues>
-            -1. 1.</leafValues></_></weakClassifiers></_>
+            -1. 9.9875080585479736e-01</leafValues></_></weakClassifiers></_>
     <!-- stage 4 -->
     <_>
       <maxWeakCount>1</maxWeakCount>
@@ -68,8 +68,8 @@
       <weakClassifiers>
         <_>
           <internalNodes>
-            0 -1 0 -178260993 -205154393 8592399 -876279257 -268321909
-            -1067867566 -47212305 -67110037</internalNodes>
+            0 -1 5 -201853953 -109584373 -1023229041 -47986353
+            -1073220645 -385654272 -886862117 -3345</internalNodes>
           <leafValues>
             -1. 1.</leafValues></_></weakClassifiers></_>
     <!-- stage 5 -->
@@ -79,27 +79,27 @@
       <weakClassifiers>
         <_>
           <internalNodes>
-            0 -1 5 -686821601 -804167679 -972931066 1073957122
-            1091020811 1610842115 -493387638 -69222161</internalNodes>
+            0 -1 4 -182994049 -711605269 -1718585969 -49300325 -79581513
+            -829948797 -909842721 -8671025</internalNodes>
           <leafValues>
-            -1. 1.</leafValues></_></weakClassifiers></_></stages>
+            -9.9600797891616821e-01 1.</leafValues></_></weakClassifiers></_></stages>
   <features>
     <_>
       <rect>
-        0 35 4 3</rect></_>
+        1 11 6 4</rect></_>
     <_>
       <rect>
-        0 37 9 3</rect></_>
+        2 12 7 3</rect></_>
     <_>
       <rect>
-        1 41 13 3</rect></_>
+        3 12 4 4</rect></_>
     <_>
       <rect>
-        3 32 13 5</rect></_>
+        5 2 2 4</rect></_>
     <_>
       <rect>
-        11 28 11 4</rect></_>
+        12 7 3 4</rect></_>
     <_>
       <rect>
-        13 0 2 16</rect></_></features></cascade>
+        17 13 2 3</rect></_></features></cascade>
 </opencv_storage>
