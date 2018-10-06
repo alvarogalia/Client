@@ -46,10 +46,10 @@ public class VideoCamera extends JPanel
 //            }
             
             BufferedImage image = Util.Mat2BufferedImage(mat);
-            SimpleDateFormat formatLong = new SimpleDateFormat("yyyyMMddHHmmssmm");
+            SimpleDateFormat formatLong = new SimpleDateFormat("yyyyMMddHHmmssmi");
             Timestamp timestamp = new Timestamp(System.currentTimeMillis());
             
-            Imgcodecs.imwrite("/media/pi/NUEVO\\ VOL/video/"+ formatLong.format(timestamp) +".jpg", mat);
+            Imgcodecs.imwrite("/media/pi/NUEVO VOL/video/"+ formatLong.format(timestamp) +".jpg", mat);
             double relation = 640.0/480.0;
             int finalWidth = this.getBounds().width-12;
             int finalHeight = (int)((finalWidth)/relation);
