@@ -2,6 +2,8 @@ package com.alvarogalia.Client;
 
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import javax.swing.JPanel;
 
 import org.opencv.core.Mat;
@@ -10,6 +12,7 @@ import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
+import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.objdetect.CascadeClassifier;
 import org.opencv.videoio.VideoCapture;
@@ -31,18 +34,22 @@ public class VideoCamera extends JPanel
         Mat mat = new Mat();
         if( camera.read(mat))
         {
-            MatOfRect objects = new MatOfRect();
-            CascadeClassifier classifier =  new CascadeClassifier("data/cascade.xml");
-            classifier.detectMultiScale(mat, objects, 1.1, 8,0, new Size(100, 100));
-            if(!objects.empty()){
-                Scalar Detect_Color = new Scalar(0, 255, 0, 255);
-                for(int i = 0; i < objects.toList().size(); i++){
-                    Rect rect = objects.toList().get(i);
-                    Imgproc.rectangle(mat, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height), Detect_Color, 5);
-                }
-            }
+//            MatOfRect objects = new MatOfRect();
+//            CascadeClassifier classifier =  new CascadeClassifier("data/cascade.xml");
+//            classifier.detectMultiScale(mat, objects, 1.1, 8,0, new Size(100, 100));
+//            if(!objects.empty()){
+//                Scalar Detect_Color = new Scalar(0, 255, 0, 255);
+//                for(int i = 0; i < objects.toList().size(); i++){
+//                    Rect rect = objects.toList().get(i);
+//                    Imgproc.rectangle(mat, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height), Detect_Color, 5);
+//                }
+//            }
             
             BufferedImage image = Util.Mat2BufferedImage(mat);
+            SimpleDateFormat formatLong = new SimpleDateFormat("yyyyMMddHHmmssmm");
+            Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+            
+            Imgcodecs.imwrite("/media/pi/NUEVO\\ VOL/video/"+ formatLong.format(timestamp) +".jpg", mat);
             double relation = 640.0/480.0;
             int finalWidth = this.getBounds().width-12;
             int finalHeight = (int)((finalWidth)/relation);
