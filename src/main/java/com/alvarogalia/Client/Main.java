@@ -65,7 +65,8 @@ public class Main extends javax.swing.JFrame {
     
     //String url = "http://138.118.33.201/mjpg/video.mjpg?timestamp=1535125345478";
     //VideoCapture camera = new VideoCapture(url);
-    VideoCapture camera = new VideoCapture(0);
+    //VideoCapture camera = new VideoCapture(0);
+    VideoCapture camera = new VideoCapture("/Users/alvarogaliavalenzuela/Movies/video/13.mp4");
     Thread thread;
     VideoCamera panelImagenInterior = new VideoCamera(camera);
     
@@ -331,7 +332,6 @@ public class Main extends javax.swing.JFrame {
         setTitle("Control Acceso");
         setFont(new java.awt.Font("Lucida Sans", 0, 10)); // NOI18N
         setLocationByPlatform(true);
-        setMaximumSize(new java.awt.Dimension(800, 480));
         setMinimumSize(new java.awt.Dimension(800, 480));
         setName("Control Acceso"); // NOI18N
         setSize(new java.awt.Dimension(800, 480));
