@@ -49,7 +49,7 @@ public class VideoCamera extends JPanel
             SimpleDateFormat formatLong = new SimpleDateFormat("yyyyMMddHHmmssSSS");
             Timestamp timestamp = new Timestamp(System.currentTimeMillis());
             
-            //Imgcodecs.imwrite("/media/pi/NUEVO VOL/video/"+ formatLong.format(timestamp) +".jpg", mat);
+            Imgcodecs.imwrite("/media/pi/NUEVO VOL/video/"+ formatLong.format(timestamp) +".jpg", mat);
             double relation = 640.0/480.0;
             int finalWidth = this.getBounds().width-12;
             int finalHeight = (int)((finalWidth)/relation);
