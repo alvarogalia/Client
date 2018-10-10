@@ -34,16 +34,19 @@ public class VideoCamera extends JPanel
         Mat mat = new Mat();
         if( camera.read(mat))
         {
-//            MatOfRect objects = new MatOfRect();
-//            CascadeClassifier classifier =  new CascadeClassifier("data/cascade.xml");
-//            classifier.detectMultiScale(mat, objects, 1.1, 3,0, new Size(36, 13));
-//            if(!objects.empty()){
-//                Scalar Detect_Color = new Scalar(0, 255, 0, 255);
-//                for(int i = 0; i < objects.toList().size(); i++){
-//                    Rect rect = objects.toList().get(i);
-//                    Imgproc.rectangle(mat, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height), Detect_Color, 5);
-//                }
-//            }
+            MatOfRect objects = new MatOfRect();
+            CascadeClassifier classifier =  new CascadeClassifier("data/cascade.xml");
+            int minHeight = mat.rows()/20;
+            int minWidth = mat.cols()/20;
+            
+            classifier.detectMultiScale(mat, objects, 1.1, 3,0, new Size(minWidth, minHeight));
+            if(!objects.empty()){
+                Scalar Detect_Color = new Scalar(0, 255, 0, 255);
+                for(int i = 0; i < objects.toList().size(); i++){
+                    Rect rect = objects.toList().get(i);
+                    Imgproc.rectangle(mat, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height), Detect_Color, 5);
+                }
+            }
             
             BufferedImage image = Util.Mat2BufferedImage(mat);
             SimpleDateFormat formatLong = new SimpleDateFormat("yyyyMMddHHmmssSSS");
