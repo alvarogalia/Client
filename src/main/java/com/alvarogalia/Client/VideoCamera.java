@@ -39,7 +39,7 @@ public class VideoCamera extends JPanel
             int minHeight = mat.rows()/20;
             int minWidth = mat.cols()/20;
             
-            classifier.detectMultiScale(mat, objects, 1.1, 3,0, new Size(minWidth, minHeight));
+            classifier.detectMultiScale(mat, objects, 1.1, 20,0, new Size(minWidth, minHeight));
             if(!objects.empty()){
                 Scalar Detect_Color = new Scalar(0, 255, 0, 255);
                 for(int i = 0; i < objects.toList().size(); i++){

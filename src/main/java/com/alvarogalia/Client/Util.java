@@ -9,6 +9,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
 import javax.swing.JTable;
@@ -90,6 +91,21 @@ public class Util {
         public Object getValueAt(int row, int column) {
             return String.format("%d %d", row, column);
         }
+    }
+    
+    public static void addLibraryPath(String pathToAdd) throws Exception {
+        Field usrPathsField = ClassLoader.class.getDeclaredField("usr_paths");
+        usrPathsField.setAccessible(true);
+
+        String[] paths = (String[]) usrPathsField.get(null);
+
+        for (String path : paths)
+            if (path.equals(pathToAdd))
+                return;
+
+        String[] newPaths = Arrays.copyOf(paths, paths.length + 1);
+        newPaths[newPaths.length - 1] = pathToAdd;
+        usrPathsField.set(null, newPaths);
     }
 }
 
