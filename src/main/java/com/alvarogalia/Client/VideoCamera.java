@@ -48,12 +48,12 @@ public class VideoCamera extends JPanel
             Timestamp timestamp = new Timestamp(System.currentTimeMillis());
             
             if(!objects.empty()){
-                Scalar Detect_Color = new Scalar(0, 255, 0, 255);
+                System.out.println("          ->DETECTION!!!!!!");
                 for(int i = 0; i < objects.toList().size(); i++){
                     Rect rect = objects.toList().get(i);
                     Mat subMat = mat.submat(rect);
                     if(subMat.cols()>=100 && subMat.rows()>= 36){
-                        Imgcodecs.imwrite("plates/"+ formatLong.format(timestamp) + "_" + i +".jpg", subMat);
+                        Imgcodecs.imwrite("/media/pi/NUEVO VOL/plates/"+ formatLong.format(timestamp) + "_" + i +".jpg", subMat);
 //                        try {
 //                            Alpr alpr = new Alpr(country, configfile, runtimeDataDir);
 //                            alpr.setTopN(1);
@@ -73,7 +73,7 @@ public class VideoCamera extends JPanel
                     }
                 }
             }else{
-                
+                System.out.println("NO DETECTION!");
             }
 
             Scalar Detect_Color = new Scalar(0, 255, 0, 255);
