@@ -7,6 +7,10 @@ package com.alvarogalia.Client;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.lang.reflect.Field;
@@ -16,6 +20,7 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import org.opencv.core.Mat;
+import org.opencv.core.Rect;
 
 /**
  *
@@ -106,6 +111,41 @@ public class Util {
         String[] newPaths = Arrays.copyOf(paths, paths.length + 1);
         newPaths[newPaths.length - 1] = pathToAdd;
         usrPathsField.set(null, newPaths);
+    }
+    
+    public static BufferedImage drawPlate(BufferedImage image, Rect rect, String ppu){
+        int plateWidth = rect.width;
+        int plateHeight = rect.height;
+        int fromX = rect.x;
+        int fromY = rect.y;
+
+        Graphics2D graphics2d = image.createGraphics();
+
+        Image fondo = Toolkit.getDefaultToolkit().getImage("patente.png");
+        graphics2d.drawImage(fondo, (int) fromX, (int) fromY, (int) plateWidth, (int) plateHeight, null);
+        graphics2d.dispose();
+
+        Font font = new Font("FE-Font", Font.PLAIN, (int) (plateHeight / 1.8));
+
+        graphics2d = image.createGraphics();
+        graphics2d.setFont(font);
+        graphics2d.setColor(Color.DARK_GRAY);
+
+        String text = String.valueOf(ppu.charAt(0));
+        graphics2d.drawString(text, (int) (fromX + (plateWidth / 36) * 1), (int) (fromY + plateHeight / 1.95));
+        text = String.valueOf(ppu.charAt(1));
+        graphics2d.drawString(text, (int) (fromX + (plateWidth / 36) * 6), (int) (fromY + plateHeight / 1.95));
+        text = String.valueOf(ppu.charAt(2));
+        graphics2d.drawString(text, (int) (fromX + (plateWidth / 36) * 13), (int) (fromY + plateHeight / 1.95));
+        text = String.valueOf(ppu.charAt(3));
+        graphics2d.drawString(text, (int) (fromX + (plateWidth / 36) * 16.3), (int) (fromY + plateHeight / 1.95));
+        text = String.valueOf(ppu.charAt(4));
+        graphics2d.drawString(text, (int) (fromX + (plateWidth / 36) * 26.0), (int) (fromY + plateHeight / 1.95));
+        text = String.valueOf(ppu.charAt(5));
+        graphics2d.drawString(text, (int) (fromX + (plateWidth / 36) * 30.0), (int) (fromY + plateHeight / 1.95));
+        graphics2d.dispose();
+        
+        return image;
     }
 }
 
