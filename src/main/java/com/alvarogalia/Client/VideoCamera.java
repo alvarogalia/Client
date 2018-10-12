@@ -53,7 +53,7 @@ public class VideoCamera extends JPanel
                     Rect rect = objects.toList().get(i);
                     Mat subMat = mat.submat(rect);
                     if(subMat.cols()>=100 && subMat.rows()>= 36){
-//                        Imgcodecs.imwrite("/media/pi/NUEVO VOL/plates/"+ formatLong.format(timestamp) + "_" + i +".jpg", subMat);
+                        Imgcodecs.imwrite("/media/pi/NUEVO VOL/plates/"+ formatLong.format(timestamp) + "_" + i +".jpg", subMat);
 //                        try {
 //                            Alpr alpr = new Alpr(country, configfile, runtimeDataDir);
 //                            alpr.setTopN(1);
@@ -83,7 +83,7 @@ public class VideoCamera extends JPanel
             }
             Imgproc.putText(mat, mat.cols()+"x"+mat.rows(),  new Point(30, 30),Core.FONT_HERSHEY_PLAIN , 1 , Detect_Color, 1);
             BufferedImage image = Util.Mat2BufferedImage(mat);
-//            Imgcodecs.imwrite("/media/pi/NUEVO VOL/video/"+ formatLong.format(timestamp) +".jpg", mat);
+            Imgcodecs.imwrite("/media/pi/NUEVO VOL/video/"+ formatLong.format(timestamp) +".jpg", mat);
             double relation = 640.0/480.0;
             int finalWidth = this.getBounds().width-12;
             int finalHeight = (int)((finalWidth)/relation);
