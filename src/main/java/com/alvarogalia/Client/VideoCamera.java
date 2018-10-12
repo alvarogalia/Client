@@ -81,7 +81,7 @@ public class VideoCamera extends JPanel
                     Imgproc.rectangle(mat, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height), Detect_Color, 5);
                 }
             }
-            Imgproc.putText(mat, mat.cols()+"x"+mat.rows(),  new Point(50, 50),Core.FONT_HERSHEY_PLAIN , 1 , Detect_Color, 5);
+            Imgproc.putText(mat, mat.cols()+"x"+mat.rows(),  new Point(30, 30),Core.FONT_HERSHEY_PLAIN , 1 , Detect_Color, 2);
             BufferedImage image = Util.Mat2BufferedImage(mat);
 //            Imgcodecs.imwrite("/media/pi/NUEVO VOL/video/"+ formatLong.format(timestamp) +".jpg", mat);
             double relation = 640.0/480.0;
