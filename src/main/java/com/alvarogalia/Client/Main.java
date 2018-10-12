@@ -66,7 +66,7 @@ public class Main extends javax.swing.JFrame {
     //String url = "http://138.118.33.201/mjpg/video.mjpg?timestamp=1535125345478";
     //VideoCapture camera = new VideoCapture(url);
     //VideoCapture camera = new VideoCapture(0);
-    VideoCapture camera = new VideoCapture("C:/Users/GENESYS/Downloads/13.mp4");
+    VideoCapture camera = new VideoCapture("13.mp4");
     Thread thread;
     VideoCamera panelImagenInterior = new VideoCamera(camera);
 
