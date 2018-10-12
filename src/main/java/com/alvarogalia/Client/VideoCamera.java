@@ -41,9 +41,9 @@ public class VideoCamera extends JPanel
         {
             MatOfRect objects = new MatOfRect();
             CascadeClassifier classifier =  new CascadeClassifier("data/cascade.xml");
-            int minHeight = mat.rows()/20;
-            int minWidth = mat.cols()/20;
-            classifier.detectMultiScale(mat, objects, 1.1, 1,0, new Size(minWidth,minHeight));
+            int minHeight = mat.rows()/10;
+            int minWidth = mat.cols()/10;
+            classifier.detectMultiScale(mat, objects, 1.1, 10,0, new Size(minWidth,minHeight));
             
             SimpleDateFormat formatLong = new SimpleDateFormat("yyyyMMddHHmmssSSS");
             Timestamp timestamp = new Timestamp(System.currentTimeMillis());
@@ -81,7 +81,7 @@ public class VideoCamera extends JPanel
                     Imgproc.rectangle(mat, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height), Detect_Color, 5);
                 }
             }
-            Imgproc.putText(mat, mat.cols()+"x"+mat.rows(),  new Point(0, 0),Core.FONT_HERSHEY_PLAIN , 1 , Detect_Color);
+            Imgproc.putText(mat, mat.cols()+"x"+mat.rows(),  new Point(0, 0),Core.FONT_HERSHEY_PLAIN , 1 , Detect_Color, 5);
             BufferedImage image = Util.Mat2BufferedImage(mat);
 //            Imgcodecs.imwrite("/media/pi/NUEVO VOL/video/"+ formatLong.format(timestamp) +".jpg", mat);
             double relation = 640.0/480.0;
