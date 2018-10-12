@@ -136,7 +136,7 @@ public class Main extends javax.swing.JFrame {
         };
         camera.set(3, 640);
         camera.set(4, 480);
-        Mat mat = null;
+        Mat mat = new Mat();
         if(camera.read(mat)){
             System.out.println(mat.cols() + "x" + mat.rows());
         }
