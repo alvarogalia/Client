@@ -37,6 +37,7 @@ import javax.swing.Timer;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.table.DefaultTableModel;
 import org.opencv.core.Core;
+import org.opencv.core.Mat;
 import org.opencv.videoio.VideoCapture;
 
 /**
@@ -44,120 +45,124 @@ import org.opencv.videoio.VideoCapture;
  * @author GENESYS
  */
 public class Main extends javax.swing.JFrame {
-      
+
     /**
      * Creates new form Main2
+     *
      * @param hist
      */
-    
     String holding = "BRASIL";
     String ubicacion = "RIO";
     String camara = "CAM-01";
-    
+
     FrameRegistrarVisita frameAgregarVisita;
     FrameRegistrarSalidaPPU frameRegistrarSalidaPPU;
     FrameListaNegra frameListaNegra;
     FrameListaBlanca frameListaBlanca;
-    
-    
+
     FirebaseDatabase database;
     DatabaseReference refNowWatching;
-    
+
     //String url = "http://138.118.33.201/mjpg/video.mjpg?timestamp=1535125345478";
     //VideoCapture camera = new VideoCapture(url);
     //VideoCapture camera = new VideoCapture(0);
     VideoCapture camera = new VideoCapture("C:/Users/GENESYS/Downloads/13.mp4");
     Thread thread;
     VideoCamera panelImagenInterior = new VideoCamera(camera);
-    
+
     ValueEventListener listenerNowWatching;
-    
+
     public void addRowToHistory(String key, Spotted spot) {
         DefaultTableModel model = (DefaultTableModel) tblSpotted.getModel();
-        
+
         boolean registrado = false;
         String listaNegra = " ";
         String listaBlanca = " ";
         String encargo = " ";
-        try{
-            if(frameListaNegra.arrListaNegra.containsKey(spot.getPpu())){
+        try {
+            if (frameListaNegra.arrListaNegra.containsKey(spot.getPpu())) {
                 listaNegra = "N";
             }
-            if(frameListaBlanca.arrListaBlanca.containsKey(spot.getPpu())){
+            if (frameListaBlanca.arrListaBlanca.containsKey(spot.getPpu())) {
                 listaBlanca = "B";
             }
-        }catch(Exception e){
+        } catch (Exception e) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, e);
         }
-        
-        String alerta = encargo+listaNegra+listaBlanca;
+
+        String alerta = encargo + listaNegra + listaBlanca;
         model.insertRow(0, new Object[]{key, spot.getPpu(), registrado, alerta});
     }
-    
+
     public Main() throws FileNotFoundException, IOException {
         this.listenerNowWatching = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 NowWatching nowWatching = dataSnapshot.getValue(NowWatching.class);
                 lblPatente.setText(nowWatching.getPpu());
-                
-                DefaultTableModel model = (DefaultTableModel)tblHistorial.getModel();
-                while(model.getRowCount() > 0){
+
+                DefaultTableModel model = (DefaultTableModel) tblHistorial.getModel();
+                while (model.getRowCount() > 0) {
                     model.removeRow(0);
                 }
-                
+
                 Query qVisitas = database.getReference("Historial").child(holding).child(nowWatching.getPpu());
                 qVisitas.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot ds) {
-                        DefaultTableModel model = (DefaultTableModel)tblHistorial.getModel();
-                        while(model.getRowCount() > 0){
+                        DefaultTableModel model = (DefaultTableModel) tblHistorial.getModel();
+                        while (model.getRowCount() > 0) {
                             model.removeRow(0);
                         }
                         int i = 0;
-                        for(DataSnapshot snap : ds.getChildren()){
+                        for (DataSnapshot snap : ds.getChildren()) {
                             Historial hist = snap.getValue(Historial.class);
                             long timestamp = Long.parseLong(snap.getKey());
-                            model.insertRow(i, new Object[]{Util.longToDate(timestamp),hist.getUbicacion(),hist.getCamara()});
+                            model.insertRow(i, new Object[]{Util.longToDate(timestamp), hist.getUbicacion(), hist.getCamara()});
                             i++;
                         }
                     }
-                    
+
                     @Override
                     public void onCancelled(DatabaseError de) {
-                        
+
                     }
                 });
             }
-            
+
             @Override
             public void onCancelled(DatabaseError de) {
             }
         };
         this.redraw = () -> {
-            while(true){
-                if(camera.isOpened()){
+            Mat mat = null;
+            if (camera.read(mat)) {
+                System.out.println(mat.cols() + "x" + mat.rows());
+            }
+            while (true) {
+                if (camera.isOpened()) {
                     try {
+
                         panelImagenInterior.repaint();
                         long sleep = 33;
                         Thread.sleep(sleep);
                     } catch (Exception ex) {
                         System.out.println(ex.getMessage());
                     }
-                }else{
+                } else {
                     //camera.open(url);
                     camera.open(0);
                 }
             }
         };
         initComponents();
-        
+
         tblSpotted.getColumnModel().removeColumn(tblSpotted.getColumnModel().getColumn(0));
-        
+
         GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
         this.setMaximizedBounds(env.getMaximumWindowBounds());
         this.setExtendedState(this.getExtendedState() | Main.MAXIMIZED_BOTH);
-        
+
         FileInputStream serviceAccount = new FileInputStream("controlacceso-fc68c-firebase-adminsdk-22zra-efe9ebaead.json");
         FirebaseOptions options = new FirebaseOptions.Builder()
                 .setCredentials(GoogleCredentials.fromStream(serviceAccount))
@@ -166,22 +171,22 @@ public class Main extends javax.swing.JFrame {
 
         FirebaseApp.initializeApp(options);
         database = FirebaseDatabase.getInstance();
-        
+
         frameAgregarVisita = new FrameRegistrarVisita(database);
         frameRegistrarSalidaPPU = new FrameRegistrarSalidaPPU(database);
         frameListaNegra = new FrameListaNegra(database, this);
         frameListaBlanca = new FrameListaBlanca(database);
-        
+
         refNowWatching = database.getReference("NowWatching").child(holding).child(ubicacion).child(camara);
         refNowWatching.addValueEventListener(listenerNowWatching);
 
         Query qrefHistNew = database.getReference("Spotted").child(holding).child(ubicacion).limitToLast(100);
         qrefHistNew.addChildEventListener(new ChildEventListener() {
             @Override
-            public void onChildAdded(DataSnapshot ds, String string) {                        
+            public void onChildAdded(DataSnapshot ds, String string) {
                 Spotted spot = ds.getValue(Spotted.class);
                 addRowToHistory(ds.getKey(), spot);
-                if(frameListaNegra.arrListaNegra.containsKey(spot.getPpu())){
+                if (frameListaNegra.arrListaNegra.containsKey(spot.getPpu())) {
                     try {
                         SystemTray tray = SystemTray.getSystemTray();
                         Image image = Toolkit.getDefaultToolkit().createImage("listanegra.png");
@@ -189,9 +194,9 @@ public class Main extends javax.swing.JFrame {
                         trayIcon.setImageAutoSize(true);
                         trayIcon.setToolTip("Lista negra");
                         tray.add(trayIcon);
-                        trayIcon.displayMessage("Patente en lista negra!", "Patente " + spot.getPpu() + 
-                                " visualizada en cámara " + spot.getCamara() + ". Registra " + 
-                                frameListaNegra.arrListaNegra.get(spot.getPpu()).getRazon(), MessageType.WARNING);
+                        trayIcon.displayMessage("Patente en lista negra!", "Patente " + spot.getPpu()
+                                + " visualizada en cámara " + spot.getCamara() + ". Registra "
+                                + frameListaNegra.arrListaNegra.get(spot.getPpu()).getRazon(), MessageType.WARNING);
                     } catch (AWTException ex) {
                         Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -205,9 +210,9 @@ public class Main extends javax.swing.JFrame {
 
             @Override
             public void onChildRemoved(DataSnapshot ds) {
-                DefaultTableModel model = (DefaultTableModel)tblSpotted.getModel();
-                for(int i = 0; i < model.getRowCount(); i++){
-                    if(ds.getKey().equals(model.getValueAt(i, 0))){
+                DefaultTableModel model = (DefaultTableModel) tblSpotted.getModel();
+                for (int i = 0; i < model.getRowCount(); i++) {
+                    if (ds.getKey().equals(model.getValueAt(i, 0))) {
                         model.removeRow(i);
                     }
                 }
@@ -222,59 +227,59 @@ public class Main extends javax.swing.JFrame {
             public void onCancelled(DatabaseError de) {
             }
         });
-        
+
         tblSpotted.getSelectionModel().addListSelectionListener((ListSelectionEvent e) -> {
             if (!e.getValueIsAdjusting() && tblSpotted.getSelectedRowCount() > 0) {
                 btnEnVivo.setVisible(true);
                 refNowWatching.removeEventListener(listenerNowWatching);
-                
-                DefaultTableModel model = (DefaultTableModel)tblHistorial.getModel();
-                while(model.getRowCount() > 0){
+
+                DefaultTableModel model = (DefaultTableModel) tblHistorial.getModel();
+                while (model.getRowCount() > 0) {
                     model.removeRow(0);
                 }
-                
+
                 String ppu = (String) tblSpotted.getModel().getValueAt(tblSpotted.getSelectedRow(), 1);
                 lblPatente.setText(ppu);
                 Query qVisitas = database.getReference("Historial").child(holding).child(ppu);
                 qVisitas.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
-                    public void onDataChange(DataSnapshot ds){
-                        DefaultTableModel model = (DefaultTableModel)tblHistorial.getModel();
-                        while(model.getRowCount() > 0){
+                    public void onDataChange(DataSnapshot ds) {
+                        DefaultTableModel model = (DefaultTableModel) tblHistorial.getModel();
+                        while (model.getRowCount() > 0) {
                             model.removeRow(0);
                         }
-                        
+
                         int i = 0;
-                        for(DataSnapshot snap : ds.getChildren()){
+                        for (DataSnapshot snap : ds.getChildren()) {
                             Historial hist = snap.getValue(Historial.class);
                             long timestamp = Long.parseLong(snap.getKey());
-                            model.insertRow(i, new Object[]{Util.longToDate(timestamp),hist.getUbicacion(), hist.getCamara()});
+                            model.insertRow(i, new Object[]{Util.longToDate(timestamp), hist.getUbicacion(), hist.getCamara()});
                             i++;
                         }
                     }
-                    
+
                     @Override
                     public void onCancelled(DatabaseError de) {
-                        
+
                     }
                 });
             }
         });
-        
+
         Timer timer = new Timer(100, (ActionEvent e) -> {
-            if(frameListaNegra.hayCambios || frameListaBlanca.hayCambios){
+            if (frameListaNegra.hayCambios || frameListaBlanca.hayCambios) {
                 DefaultTableModel model = (DefaultTableModel) tblSpotted.getModel();
-                for(int i = 0; i < model.getRowCount(); i++){
-                    String patente  = (String) model.getValueAt(i, 1);
+                for (int i = 0; i < model.getRowCount(); i++) {
+                    String patente = (String) model.getValueAt(i, 1);
                     StringBuilder value = new StringBuilder((String) model.getValueAt(i, 3));
-                    if(frameListaNegra.arrListaNegra.containsKey(patente)){
+                    if (frameListaNegra.arrListaNegra.containsKey(patente)) {
                         value.setCharAt(1, 'N');
-                    }else{
+                    } else {
                         value.setCharAt(1, ' ');
                     }
-                    if(frameListaBlanca.arrListaBlanca.containsKey(patente)){
+                    if (frameListaBlanca.arrListaBlanca.containsKey(patente)) {
                         value.setCharAt(2, 'B');
-                    }else{
+                    } else {
                         value.setCharAt(2, ' ');
                     }
                     model.setValueAt(value.toString(), i, 3);
@@ -284,7 +289,7 @@ public class Main extends javax.swing.JFrame {
             }
         });
         timer.start();
-        
+
         panelImagen.add(panelImagenInterior);
         panelImagenInterior.setVisible(true);
         panelImagen.addComponentListener(new ComponentAdapter() {
@@ -293,7 +298,7 @@ public class Main extends javax.swing.JFrame {
                 panelImagenInterior.setBounds(panelImagen.getBounds());
             }
         });
-         
+
         this.thread = new Thread(redraw);
         thread.setPriority(Thread.MIN_PRIORITY);
         thread.start();
@@ -571,7 +576,7 @@ public class Main extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void tblSpottedComponentAdded(java.awt.event.ContainerEvent evt) {//GEN-FIRST:event_tblSpottedComponentAdded
-        
+
     }//GEN-LAST:event_tblSpottedComponentAdded
 
     private void btnEnVivoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEnVivoActionPerformed
@@ -628,23 +633,22 @@ public class Main extends javax.swing.JFrame {
         }
         //</editor-fold>
         //</editor-fold>
-        
+
         //</editor-fold>
         //</editor-fold>
 
         /* Create and display the form */
-        
-        /*Added compatibility to Mac OS brew opencv*/
+ /*Added compatibility to Mac OS brew opencv*/
         Util.addLibraryPath("/usr/local/Cellar/opencv/3.4.3/share/OpenCV/java/");
-        
+
         System.out.println("Library PATH:");
         System.out.println(System.getProperty("java.library.path"));
-        
+
         java.awt.EventQueue.invokeLater(() -> {
             try {
                 System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
                 new Main().setVisible(true);
-                
+
             } catch (IOException ex) {
                 System.out.println(ex.getMessage());
             }
