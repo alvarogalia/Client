@@ -41,8 +41,8 @@ public class VideoCamera extends JPanel
         {
             MatOfRect objects = new MatOfRect();
             CascadeClassifier classifier =  new CascadeClassifier("data/cascade.xml");
-            int minHeight = mat.rows()/10;
-            int minWidth = mat.cols()/10;
+            int minHeight = mat.rows()/15;
+            int minWidth = mat.cols()/15;
             classifier.detectMultiScale(mat, objects, 1.1, 8,0, new Size(minWidth,minHeight));
             
             SimpleDateFormat formatLong = new SimpleDateFormat("yyyyMMddHHmmssSSS");
