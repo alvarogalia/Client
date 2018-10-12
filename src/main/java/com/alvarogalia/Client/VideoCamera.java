@@ -40,9 +40,9 @@ public class VideoCamera extends JPanel
         {
             MatOfRect objects = new MatOfRect();
             CascadeClassifier classifier =  new CascadeClassifier("data/cascade.xml");
-            int minHeight = mat.rows()/1;
-            int minWidth = mat.cols()/1;
-            classifier.detectMultiScale(mat, objects, 2.0, 8,0, new Size(minWidth,minHeight));
+            int minHeight = mat.rows()/10;
+            int minWidth = mat.cols()/10;
+            classifier.detectMultiScale(mat, objects, 1.1, 8,0, new Size(minWidth,minHeight));
             
             SimpleDateFormat formatLong = new SimpleDateFormat("yyyyMMddHHmmssSSS");
             Timestamp timestamp = new Timestamp(System.currentTimeMillis());
@@ -53,7 +53,7 @@ public class VideoCamera extends JPanel
                     Rect rect = objects.toList().get(i);
                     Mat subMat = mat.submat(rect);
                     if(subMat.cols()>=100 && subMat.rows()>= 36){
-                        Imgcodecs.imwrite("/media/pi/NUEVO VOL/plates/"+ formatLong.format(timestamp) + "_" + i +".jpg", subMat);
+//                        Imgcodecs.imwrite("/media/pi/NUEVO VOL/plates/"+ formatLong.format(timestamp) + "_" + i +".jpg", subMat);
 //                        try {
 //                            Alpr alpr = new Alpr(country, configfile, runtimeDataDir);
 //                            alpr.setTopN(1);
@@ -84,7 +84,7 @@ public class VideoCamera extends JPanel
                 }
             }
             BufferedImage image = Util.Mat2BufferedImage(mat);
-            Imgcodecs.imwrite("/media/pi/NUEVO VOL/video/"+ formatLong.format(timestamp) +".jpg", mat);
+//            Imgcodecs.imwrite("/media/pi/NUEVO VOL/video/"+ formatLong.format(timestamp) +".jpg", mat);
             double relation = 640.0/480.0;
             int finalWidth = this.getBounds().width-12;
             int finalHeight = (int)((finalWidth)/relation);
