@@ -7,6 +7,7 @@ import java.awt.image.BufferedImage;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import javax.swing.JPanel;
+import org.opencv.core.Core;
 
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
@@ -48,7 +49,6 @@ public class VideoCamera extends JPanel
             Timestamp timestamp = new Timestamp(System.currentTimeMillis());
             
             if(!objects.empty()){
-                System.out.println("          ->DETECTION!!!!!!");
                 for(int i = 0; i < objects.toList().size(); i++){
                     Rect rect = objects.toList().get(i);
                     Mat subMat = mat.submat(rect);
@@ -72,8 +72,6 @@ public class VideoCamera extends JPanel
 //                        }
                     }
                 }
-            }else{
-                System.out.println("NO DETECTION!");
             }
 
             Scalar Detect_Color = new Scalar(0, 255, 0, 255);
@@ -83,6 +81,7 @@ public class VideoCamera extends JPanel
                     Imgproc.rectangle(mat, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height), Detect_Color, 5);
                 }
             }
+            Imgproc.putText(mat, mat.cols()+"x"+mat.rows(),  new Point(0, 0),Core.FONT_HERSHEY_PLAIN , 1 , Detect_Color);
             BufferedImage image = Util.Mat2BufferedImage(mat);
 //            Imgcodecs.imwrite("/media/pi/NUEVO VOL/video/"+ formatLong.format(timestamp) +".jpg", mat);
             double relation = 640.0/480.0;

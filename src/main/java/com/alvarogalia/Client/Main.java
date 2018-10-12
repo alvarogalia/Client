@@ -135,14 +135,10 @@ public class Main extends javax.swing.JFrame {
             }
         };
         this.redraw = () -> {
-            Mat mat = null;
-            if (camera.read(mat)) {
-                System.out.println(mat.cols() + "x" + mat.rows());
-            }
+            
             while (true) {
                 if (camera.isOpened()) {
                     try {
-
                         panelImagenInterior.repaint();
                         long sleep = 33;
                         Thread.sleep(sleep);
@@ -150,7 +146,6 @@ public class Main extends javax.swing.JFrame {
                         System.out.println(ex.getMessage());
                     }
                 } else {
-                    //camera.open(url);
                     camera.open(0);
                 }
             }
