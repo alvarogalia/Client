@@ -134,6 +134,13 @@ public class Main extends javax.swing.JFrame {
             public void onCancelled(DatabaseError de) {
             }
         };
+        camera.set(3, 640);
+        camera.set(4, 480);
+        Mat mat = null;
+        if(camera.read(mat)){
+            System.out.println(mat.cols() + "x" + mat.rows());
+        }
+        
         this.redraw = () -> {
             
             while (true) {
