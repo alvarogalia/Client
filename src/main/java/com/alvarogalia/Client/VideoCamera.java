@@ -41,8 +41,8 @@ public class VideoCamera extends JPanel
         {
             MatOfRect objects = new MatOfRect();
             CascadeClassifier classifier =  new CascadeClassifier("data/cascade.xml");
-            int minHeight = mat.rows()/15;
-            int minWidth = mat.cols()/15;
+            int minHeight = mat.rows()/20;
+            int minWidth = mat.cols()/20;
             classifier.detectMultiScale(mat, objects, 1.1, 8,0, new Size(minWidth,minHeight));
             
             SimpleDateFormat formatLong = new SimpleDateFormat("yyyyMMddHHmmssSSS");
@@ -65,8 +65,9 @@ public class VideoCamera extends JPanel
 //                            alpr.unload();
 //                            if(response.getPlates().size() > 0){
 //                                String ppu = response.getPlates().get(0).getBestPlate().getCharacters();
-//                                image = Util.drawPlate(image, rect, ppu);
+//                                System.out.println("Patente detectada: " + ppu);
 //                            }
+//                            camera.grab();
 //                        } catch (Exception ex) {
 //                            ex.printStackTrace();
 //                        }
@@ -84,8 +85,9 @@ public class VideoCamera extends JPanel
             Imgproc.putText(mat, mat.cols()+"x"+mat.rows(),  new Point(30, 30),Core.FONT_HERSHEY_PLAIN , 1 , Detect_Color, 1);
             BufferedImage image = Util.Mat2BufferedImage(mat);
             Imgcodecs.imwrite("/media/pi/NUEVO VOL/video/"+ formatLong.format(timestamp) +".jpg", mat);
-            double relation = 640.0/480.0;
-            int finalWidth = this.getBounds().width-12;
+            //double relation = mat.cols()/mat.rows();
+            double relation = (double)mat.cols()/(double)mat.rows();
+            int finalWidth = this.getBounds().width;
             int finalHeight = (int)((finalWidth)/relation);
             int finalTopMargin = (int) (this.getBounds().height - finalHeight) / 2;
             g.drawImage(image,0,finalTopMargin,finalWidth, finalHeight, null);

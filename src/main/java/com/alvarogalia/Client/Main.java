@@ -51,9 +51,9 @@ public class Main extends javax.swing.JFrame {
      *
      * @param hist
      */
-    String holding = "BRASIL";
-    String ubicacion = "RIO";
-    String camara = "CAM-01";
+    String holding = "AUTO";
+    String ubicacion = "GRTS10";
+    String camara = "Frontal";
 
     FrameRegistrarVisita frameAgregarVisita;
     FrameRegistrarSalidaPPU frameRegistrarSalidaPPU;
@@ -64,9 +64,10 @@ public class Main extends javax.swing.JFrame {
     DatabaseReference refNowWatching;
 
     //String url = "http://138.118.33.201/mjpg/video.mjpg?timestamp=1535125345478";
-    //VideoCapture camera = new VideoCapture(url);
-    VideoCapture camera = new VideoCapture(0);
-//    VideoCapture camera = new VideoCapture("13.mp4");
+    String url = "rtsp://admin:Alvarito3@192.168.1.199/media/video1";
+    VideoCapture camera = new VideoCapture(url);
+    //VideoCapture camera = new VideoCapture(0);
+    //VideoCapture camera = new VideoCapture("13.mp4");
     Thread thread;
     VideoCamera panelImagenInterior = new VideoCamera(camera);
 
@@ -86,8 +87,8 @@ public class Main extends javax.swing.JFrame {
             if (frameListaBlanca.arrListaBlanca.containsKey(spot.getPpu())) {
                 listaBlanca = "B";
             }
-        } catch (Exception e) {
-            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, e);
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
         }
 
         String alerta = encargo + listaNegra + listaBlanca;
@@ -200,7 +201,7 @@ public class Main extends javax.swing.JFrame {
                                 + " visualizada en cámara " + spot.getCamara() + ". Registra "
                                 + frameListaNegra.arrListaNegra.get(spot.getPpu()).getRazon(), MessageType.WARNING);
                     } catch (AWTException ex) {
-                        Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                        System.out.println(ex.getMessage());
                     }
                 }
             }
@@ -631,7 +632,7 @@ public class Main extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(Main.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            System.out.println(ex.getMessage());
         }
         //</editor-fold>
         //</editor-fold>
