@@ -37,7 +37,8 @@ public class VideoCamera extends JPanel
         String country = "eu", configfile = "openalpr.conf", runtimeDataDir = "runtime_data";
         super.paintComponent(g);
         Mat mat = new Mat();
-        if( camera.read(mat))
+        camera.grab();
+        if( camera.retrieve(mat))
         {
             MatOfRect objects = new MatOfRect();
             CascadeClassifier classifier =  new CascadeClassifier("data/cascade.xml");
@@ -54,23 +55,23 @@ public class VideoCamera extends JPanel
                     Mat subMat = mat.submat(rect);
                     if(subMat.cols()>=100 && subMat.rows()>= 36){
                         Imgcodecs.imwrite("/media/pi/NUEVO VOL/plates/"+ formatLong.format(timestamp) + "_" + i +".jpg", subMat);
-//                        try {
-//                            Alpr alpr = new Alpr(country, configfile, runtimeDataDir);
-//                            alpr.setTopN(1);
-//                            alpr.setDefaultRegion("cl");
-//                            MatOfByte matOfByte = new MatOfByte();
-//                            
-//                            Imgcodecs.imencode("*.jpg", subMat, matOfByte);
-//                            AlprResults response = alpr.recognize(matOfByte.toArray());
-//                            alpr.unload();
-//                            if(response.getPlates().size() > 0){
-//                                String ppu = response.getPlates().get(0).getBestPlate().getCharacters();
-//                                System.out.println("Patente detectada: " + ppu);
-//                            }
-//                            camera.grab();
-//                        } catch (Exception ex) {
-//                            ex.printStackTrace();
-//                        }
+                        try {
+                            Alpr alpr = new Alpr(country, configfile, runtimeDataDir);
+                            alpr.setTopN(1);
+                            alpr.setDefaultRegion("cl");
+                            MatOfByte matOfByte = new MatOfByte();
+                            
+                            Imgcodecs.imencode("*.jpg", subMat, matOfByte);
+                            AlprResults response = alpr.recognize(matOfByte.toArray());
+                            alpr.unload();
+                            if(response.getPlates().size() > 0){
+                                String ppu = response.getPlates().get(0).getBestPlate().getCharacters();
+                                System.out.println("Patente detectada: " + ppu);
+                            }
+                            camera.grab();
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
                     }
                 }
             }
