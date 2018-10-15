@@ -37,7 +37,11 @@ public class VideoCamera extends JPanel
         String country = "eu", configfile = "openalpr.conf", runtimeDataDir = "runtime_data";
         super.paintComponent(g);
         Mat mat = new Mat();
-        camera.grab();
+        int j = 0;
+        while(j < 2){
+            camera.grab();
+            j++;
+        }
         if( camera.retrieve(mat))
         {
             MatOfRect objects = new MatOfRect();
