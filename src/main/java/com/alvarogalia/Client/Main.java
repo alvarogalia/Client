@@ -63,13 +63,15 @@ public class Main extends javax.swing.JFrame {
     FirebaseDatabase database;
     DatabaseReference refNowWatching;
 
+    public boolean recording;
+    public boolean detecting;
     //String url = "http://138.118.33.201/mjpg/video.mjpg?timestamp=1535125345478";
     //String url = "rtsp://admin:Alvarito3@192.168.1.199/media/video1";
     //VideoCapture camera = new VideoCapture(url);
     VideoCapture camera = new VideoCapture(0);
     //VideoCapture camera = new VideoCapture("13.mp4");
     Thread thread;
-    VideoCamera panelImagenInterior = new VideoCamera(camera);
+    VideoCamera panelImagenInterior = new VideoCamera(camera, detecting, recording);
 
     ValueEventListener listenerNowWatching;
 
@@ -650,7 +652,21 @@ public class Main extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(() -> {
             try {
                 System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-                new Main().setVisible(true);
+                boolean recording = false;
+                boolean detecting = false;
+                for(String arg : args){
+                    if("recording".equals(arg)){
+                        recording = true;
+                    }
+                    if("detecting".equals(arg)){
+                        detecting = true;
+                    }
+                }
+                
+                Main main = new Main();
+                main.recording = recording;
+                main.detecting = detecting;
+                main.setVisible(true);
 
             } catch (IOException ex) {
                 System.out.println(ex.getMessage());

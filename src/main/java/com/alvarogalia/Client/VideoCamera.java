@@ -27,9 +27,13 @@ import org.opencv.videoio.VideoCapture;
 public class VideoCamera extends JPanel
 {
     VideoCapture camera; 
+    boolean detecting;
+    boolean recording;
 
-    public VideoCamera(VideoCapture cam){
-        camera  = cam; 
+    public VideoCamera(VideoCapture cam, boolean detecting, boolean recording){
+        this.camera  = cam; 
+        this.detecting = detecting;
+        this.recording = recording;
     }
 
     @Override
@@ -51,6 +55,7 @@ public class VideoCamera extends JPanel
             CascadeClassifier classifier =  new CascadeClassifier("data/cascade.xml");
             int minHeight = mat.rows()/20;
             int minWidth = mat.cols()/20;
+            
             classifier.detectMultiScale(mat, objects, 1.1, 8,0, new Size(minWidth,minHeight));
             
             SimpleDateFormat formatLong = new SimpleDateFormat("yyyyMMddHHmmssSSS");
