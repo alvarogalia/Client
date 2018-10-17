@@ -62,17 +62,12 @@ public class Main extends javax.swing.JFrame {
 
     FirebaseDatabase database;
     DatabaseReference refNowWatching;
-
-    public boolean recording;
-    public boolean detecting;
     //String url = "http://138.118.33.201/mjpg/video.mjpg?timestamp=1535125345478";
     //String url = "rtsp://admin:Alvarito3@192.168.1.199/media/video1";
     //VideoCapture camera = new VideoCapture(url);
-    VideoCapture camera = new VideoCapture(0);
+    
     //VideoCapture camera = new VideoCapture("13.mp4");
     Thread thread;
-    VideoCamera panelImagenInterior = new VideoCamera(camera, detecting, recording);
-
     ValueEventListener listenerNowWatching;
 
     public void addRowToHistory(String key, Spotted spot) {
@@ -97,7 +92,10 @@ public class Main extends javax.swing.JFrame {
         model.insertRow(0, new Object[]{key, spot.getPpu(), registrado, alerta});
     }
 
-    public Main() throws FileNotFoundException, IOException {
+    public Main(boolean detecting, boolean recording) throws FileNotFoundException, IOException {
+        VideoCapture camera = new VideoCapture(0);
+        VideoCamera panelImagenInterior = new VideoCamera(camera, detecting, recording);
+        
         this.listenerNowWatching = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -663,9 +661,7 @@ public class Main extends javax.swing.JFrame {
                     }
                 }
                 
-                Main main = new Main();
-                main.recording = recording;
-                main.detecting = detecting;
+                Main main = new Main(detecting, recording);
                 main.setVisible(true);
 
             } catch (IOException ex) {
