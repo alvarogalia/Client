@@ -55,8 +55,8 @@ public class VideoCamera extends JPanel
             CascadeClassifier classifier =  new CascadeClassifier("data/cascade.xml");
             
             
-            int minHeight = mat.rows()/5;
-            int minWidth = mat.cols()/5;
+            int minHeight = 120;
+            int minWidth = 45;
             
             if(detecting){
                 classifier.detectMultiScale(mat, objects, 1.1, 8,0, new Size(minWidth,minHeight));
