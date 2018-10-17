@@ -44,6 +44,9 @@ public class VideoCamera extends JPanel
         }
         if( camera.retrieve(mat))
         {
+            java.util.Date date = new java.util.Date();
+            Timestamp timestamp1 = new Timestamp(date.getTime());
+            
             MatOfRect objects = new MatOfRect();
             CascadeClassifier classifier =  new CascadeClassifier("data/cascade.xml");
             int minHeight = mat.rows()/20;
@@ -85,9 +88,16 @@ public class VideoCamera extends JPanel
                 for(int i = 0; i < objects.toList().size(); i++){
                     Rect rect = objects.toList().get(i);
                     Imgproc.rectangle(mat, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height), Detect_Color, 5);
+                    Imgproc.putText(mat, rect.width+"x"+rect.height,  new Point(rect.x + rect.width, rect.y + rect.height),Core.FONT_HERSHEY_COMPLEX , 1 , Detect_Color, 5);
                 }
             }
-            Imgproc.putText(mat, mat.cols()+"x"+mat.rows(),  new Point(30, 30),Core.FONT_HERSHEY_PLAIN , 1 , Detect_Color, 1);
+            java.util.Date date2 = new java.util.Date();
+            Timestamp timestamp2 = new Timestamp(date2.getTime());
+            long milliseconds = timestamp2.getTime() - timestamp1.getTime();
+            long second = 1000;
+            double fps = second / milliseconds;
+            
+            Imgproc.putText(mat, (int)fps + "FPS " + mat.cols()+"x"+mat.rows(),  new Point(30, 30),Core.FONT_HERSHEY_PLAIN , 2 , Detect_Color, 5);
             BufferedImage image = Util.Mat2BufferedImage(mat);
             Imgcodecs.imwrite("/media/pi/NUEVO VOL/video/"+ formatLong.format(timestamp) +".jpg", mat);
             //double relation = mat.cols()/mat.rows();
@@ -96,6 +106,7 @@ public class VideoCamera extends JPanel
             int finalHeight = (int)((finalWidth)/relation);
             int finalTopMargin = (int) (this.getBounds().height - finalHeight) / 2;
             g.drawImage(image,0,finalTopMargin,finalWidth, finalHeight, null);
+            
         }else{
             camera.release();
         }
