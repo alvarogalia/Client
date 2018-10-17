@@ -41,12 +41,7 @@ public class VideoCamera extends JPanel
         String country = "eu", configfile = "openalpr.conf", runtimeDataDir = "runtime_data";
         super.paintComponent(g);
         Mat mat = new Mat();
-        int j = 0;
-        while(j < 2){
-            camera.grab();
-            j++;
-        }
-        if( camera.retrieve(mat))
+        if( camera.read(mat))
         {
             java.util.Date date = new java.util.Date();
             Timestamp timestamp1 = new Timestamp(date.getTime());
@@ -65,32 +60,31 @@ public class VideoCamera extends JPanel
             SimpleDateFormat formatLong = new SimpleDateFormat("yyyyMMddHHmmssSSS");
             Timestamp timestamp = new Timestamp(System.currentTimeMillis());
             
-            if(!objects.empty()){
-                for(int i = 0; i < objects.toList().size(); i++){
-                    Rect rect = objects.toList().get(i);
-                    Mat subMat = mat.submat(rect);
-                    if(subMat.cols()>=100 && subMat.rows()>= 36){
-                        Imgcodecs.imwrite("/media/pi/NUEVO VOL/plates/"+ formatLong.format(timestamp) + "_" + i +".jpg", subMat);
+//            if(!objects.empty()){
+//                for(int i = 0; i < objects.toList().size(); i++){
+//                    Rect rect = objects.toList().get(i);
+//                    Mat subMat = mat.submat(rect);
+//                    if(subMat.cols()>=100 && subMat.rows()>= 36){
+//                        Imgcodecs.imwrite("/media/pi/NUEVO VOL/plates/"+ formatLong.format(timestamp) + "_" + i +".jpg", subMat);
                         try {
                             Alpr alpr = new Alpr(country, configfile, runtimeDataDir);
                             alpr.setTopN(1);
                             alpr.setDefaultRegion("cl");
                             MatOfByte matOfByte = new MatOfByte();
                             
-                            Imgcodecs.imencode("*.jpg", subMat, matOfByte);
+                            Imgcodecs.imencode("*.jpg", mat, matOfByte);
                             AlprResults response = alpr.recognize(matOfByte.toArray());
                             alpr.unload();
                             if(response.getPlates().size() > 0){
                                 String ppu = response.getPlates().get(0).getBestPlate().getCharacters();
                                 System.out.println("Patente detectada: " + ppu);
                             }
-                            camera.grab();
                         } catch (Exception ex) {
                             ex.printStackTrace();
                         }
-                    }
-                }
-            }
+//                    }
+//                }
+//            }
 
             Scalar Detect_Color = new Scalar(0, 255, 0, 255);
             if(!objects.empty()){
