@@ -59,7 +59,7 @@ public class VideoCamera extends JPanel
             int minWidth = 45;
             
             if(detecting){
-                classifier.detectMultiScale(mat, objects, 1.1, 8,0, new Size(minWidth,minHeight));
+                classifier.detectMultiScale(mat, objects, 1.5, 8,0, new Size(minWidth,minHeight));
             }
             
             SimpleDateFormat formatLong = new SimpleDateFormat("yyyyMMddHHmmssSSS");
