@@ -55,8 +55,8 @@ public class VideoCamera extends JPanel
             CascadeClassifier classifier =  new CascadeClassifier("data/cascade.xml");
             
             
-            int minHeight = 120;
-            int minWidth = 45;
+            int minWidth = 120;
+            int minHeight = 45;
             
             if(detecting){
                 classifier.detectMultiScale(mat, objects, 1.5, 8,0, new Size(minWidth,minHeight));
@@ -69,7 +69,7 @@ public class VideoCamera extends JPanel
                 for(int i = 0; i < objects.toList().size(); i++){
                     Rect rect = objects.toList().get(i);
                     Mat subMat = mat.submat(rect);
-                    if(subMat.cols()>=100 && subMat.rows()>= 36){
+                    if(subMat.cols() >= minWidth && subMat.rows() >= minHeight){
                         Imgcodecs.imwrite("/media/pi/NUEVO VOL/plates/"+ formatLong.format(timestamp) + "_" + i +".jpg", subMat);
                         try {
                             Alpr alpr = new Alpr(country, configfile, runtimeDataDir);
