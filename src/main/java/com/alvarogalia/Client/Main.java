@@ -92,8 +92,14 @@ public class Main extends javax.swing.JFrame {
         model.insertRow(0, new Object[]{key, spot.getPpu(), registrado, alerta});
     }
 
-    public Main(boolean detecting, boolean recording) throws FileNotFoundException, IOException {
-        VideoCapture camera = new VideoCapture(0);
+    public Main(String source,boolean detecting, boolean recording) throws FileNotFoundException, IOException {
+        VideoCapture camera;
+        if(source == "0"){
+            camera = new VideoCapture(0);
+        }else{
+            camera = new VideoCapture(source);
+        }
+        
         VideoCamera panelImagenInterior = new VideoCamera(camera, detecting, recording);
         
         this.listenerNowWatching = new ValueEventListener() {
@@ -652,6 +658,7 @@ public class Main extends javax.swing.JFrame {
                 System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
                 boolean recording = false;
                 boolean detecting = false;
+                String source = "0";
                 for(String arg : args){
                     if("recording".equals(arg)){
                         recording = true;
@@ -659,9 +666,12 @@ public class Main extends javax.swing.JFrame {
                     if("detecting".equals(arg)){
                         detecting = true;
                     }
+                    if(arg.startsWith("-f=")){
+                        source = arg.split("=")[1];
+                    }
                 }
                 
-                Main main = new Main(detecting, recording);
+                Main main = new Main(source,detecting, recording);
                 main.setVisible(true);
 
             } catch (IOException ex) {
