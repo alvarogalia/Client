@@ -62,11 +62,7 @@ public class Main extends javax.swing.JFrame {
 
     FirebaseDatabase database;
     DatabaseReference refNowWatching;
-    //String url = "http://138.118.33.201/mjpg/video.mjpg?timestamp=1535125345478";
-    //String url = "rtsp://admin:Alvarito3@192.168.1.199/media/video1";
-    //VideoCapture camera = new VideoCapture(url);
-    
-    //VideoCapture camera = new VideoCapture("13.mp4");
+
     Thread thread;
     ValueEventListener listenerNowWatching;
 
