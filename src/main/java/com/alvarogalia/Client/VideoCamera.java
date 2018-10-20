@@ -29,11 +29,15 @@ public class VideoCamera extends JPanel
     VideoCapture camera; 
     boolean detecting;
     boolean recording;
-
-    public VideoCamera(VideoCapture cam, boolean detecting, boolean recording){
+    String path;
+    boolean reading;
+    
+    public VideoCamera(VideoCapture cam, boolean detecting, boolean recording, String path, boolean reading){
         this.camera  = cam; 
         this.detecting = detecting;
         this.recording = recording;
+        this.path = path;
+        this.reading = reading;
     }
 
     @Override
@@ -70,23 +74,26 @@ public class VideoCamera extends JPanel
                     Rect rect = objects.toList().get(i);
                     Mat subMat = mat.submat(rect);
                     if(subMat.cols() >= minWidth && subMat.rows() >= minHeight){
-                        Imgcodecs.imwrite("/media/pi/NUEVO VOL/plates/"+ formatLong.format(timestamp) + "_" + i +".jpg", subMat);
-                        try {
-                            Alpr alpr = new Alpr(country, configfile, runtimeDataDir);
-                            alpr.setTopN(1);
-                            alpr.setDefaultRegion("cl");
-                            MatOfByte matOfByte = new MatOfByte();
-                            
-                            Imgcodecs.imencode("*.jpg", subMat, matOfByte);
-                            AlprResults response = alpr.recognize(matOfByte.toArray());
-                            alpr.unload();
-                            if(response.getPlates().size() > 0){
-                                String ppu = response.getPlates().get(0).getBestPlate().getCharacters();
-                                System.out.println("Patente detectada: " + ppu);
+                        Imgcodecs.imwrite(path + formatLong.format(timestamp) + "_" + i +".png", subMat);
+                        if(reading){
+                            try {
+                                Alpr alpr = new Alpr(country, configfile, runtimeDataDir);
+                                alpr.setTopN(1);
+                                alpr.setDefaultRegion("cl");
+                                MatOfByte matOfByte = new MatOfByte();
+
+                                Imgcodecs.imencode("*.png", subMat, matOfByte);
+                                AlprResults response = alpr.recognize(matOfByte.toArray());
+                                alpr.unload();
+                                if(response.getPlates().size() > 0){
+                                    String ppu = response.getPlates().get(0).getBestPlate().getCharacters();
+                                    Imgcodecs.imwrite(path + formatLong.format(timestamp) + "_" + i +"_" + ppu + ".png", subMat);
+                                    System.out.println("Patente detectada: " + ppu);
+                                }
+                                camera.grab();
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
                             }
-                            camera.grab();
-                        } catch (Exception ex) {
-                            ex.printStackTrace();
                         }
                     }
                 }
@@ -112,7 +119,7 @@ public class VideoCamera extends JPanel
             Imgproc.putText(mat, (int)fps + "FPS " + mat.cols()+"x"+mat.rows(),  new Point(30, 30),Core.FONT_HERSHEY_PLAIN , 2 , Detect_Color, 5);
             BufferedImage image = Util.Mat2BufferedImage(mat);
             if(recording){
-                Imgcodecs.imwrite("/media/pi/NUEVO VOL/video/"+ formatLong.format(timestamp) +".jpg", mat);
+                Imgcodecs.imwrite(path + formatLong.format(timestamp) +".png", mat);
             }
             //double relation = mat.cols()/mat.rows();
             double relation = (double)mat.cols()/(double)mat.rows();

@@ -88,7 +88,7 @@ public class Main extends javax.swing.JFrame {
         model.insertRow(0, new Object[]{key, spot.getPpu(), registrado, alerta});
     }
 
-    public Main(String source,boolean detecting, boolean recording) throws FileNotFoundException, IOException {
+    public Main(String source,boolean detecting, boolean recording, String path, boolean reading) throws FileNotFoundException, IOException {
         VideoCapture camera;
         if(source == "0"){
             camera = new VideoCapture(0);
@@ -96,7 +96,7 @@ public class Main extends javax.swing.JFrame {
             camera = new VideoCapture(source);
         }
         
-        VideoCamera panelImagenInterior = new VideoCamera(camera, detecting, recording);
+        VideoCamera panelImagenInterior = new VideoCamera(camera, detecting, recording, path, reading);
         
         this.listenerNowWatching = new ValueEventListener() {
             @Override
@@ -655,6 +655,9 @@ public class Main extends javax.swing.JFrame {
                 boolean recording = false;
                 boolean detecting = false;
                 String source = "0";
+                String path = "resultados/";
+                boolean reading = false;
+                
                 for(String arg : args){
                     if("recording".equals(arg)){
                         recording = true;
@@ -662,12 +665,18 @@ public class Main extends javax.swing.JFrame {
                     if("detecting".equals(arg)){
                         detecting = true;
                     }
+                    if("reading".equals(arg)){
+                        reading = true;
+                    }
                     if(arg.startsWith("-f=")){
                         source = arg.split("=")[1];
                     }
+                    if(arg.startsWith("-o=")){
+                        path = arg.split("=")[1];
+                    }
                 }
                 
-                Main main = new Main(source,detecting, recording);
+                Main main = new Main(source,detecting, recording, path, reading);
                 main.setVisible(true);
 
             } catch (IOException ex) {
